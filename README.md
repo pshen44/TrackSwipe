@@ -23,7 +23,7 @@ If you want to keep the songs you removed, don't worry, you can choose to like t
 - **Frontend**: React + TypeScript
 - **Styling**: styled-components
 - **Gestures**: react-swipeable
-- **Audio Playback**: Native HTML5 `<audio>` via Spotify's `preview_url`
+- **Audio Playback**: via Spotify embedded playback (only way it could work)
 - **Spotify API**: Authorization, playlist read/write, playback setup
 
 ## 📷 Preview

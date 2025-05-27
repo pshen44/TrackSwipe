@@ -30,19 +30,20 @@ const AppContainer = styled.div`
   flex-direction: column;
   align-items: center;
   min-height: 100vh;
-  background: linear-gradient(to bottom, #1DB954, #191414);
-  padding: 20px;
+  background: #191414; // Spotify dark black
+  padding: 40px 0 0 0;
   box-sizing: border-box;
   max-width: 100vw;
   max-height: 100vh;
   overflow-x: hidden;
+  font-size: 1.25rem;
 `;
 
 const CardContainer = styled.div`
-  width: 300px;
-  height: 400px;
+  width: 380px;
+  height: 520px;
   position: relative;
-  margin: 20px;
+  margin: 32px;
   transform: translateZ(0);
 `;
 
@@ -52,7 +53,7 @@ const MainContent = styled.div`
   align-items: flex-start;
   justify-content: center;
   width: 100%;
-  margin-top: 20px;
+  margin-top: 16px; // Reduced from 40px
   position: relative;
 `;
 
@@ -60,22 +61,20 @@ const SongCard = styled.div<{ transform?: string }>`
   position: absolute;
   width: 100%;
   height: 100%;
-  background: white;
-  border-radius: 20px;
-  padding: 20px;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+  background: #232323; // Lighter than #191414 for contrast
+  border-radius: 32px;
+  padding: 40px;
+  box-shadow: 0px 14px 32px rgba(43, 255, 89, 0.22);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  width: 300px;
-  height: 400px;
+  width: 380px;
+  height: 520px;
   transition: transform 0.3s ease-out;
   transform: ${props => props.transform || 'none'};
   user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  border: 2px solid transparent;
+  border: 2.5px solid transparent;
+  color: #fff; // Make all text inside the card white
   &:hover {
     border-color: #1DB954;
   }
@@ -87,61 +86,33 @@ const SongInfo = styled.div`
 
 const Title = styled.h2`
   margin: 0;
-  color: #191414;
+  color: #fff; // White title
 `;
 
 const Artist = styled.p`
-  color: #666;
+  color: #ccc; // Light gray for artist
   margin: 10px 0;
 `;
 
 const AlbumArt = styled.img`
   width: 100%;
-  height: 200px;
+  height: 260px;
   object-fit: cover;
-  border-radius: 10px;
-  margin: 10px 0;
+  border-radius: 14px;
+  margin: 18px 0;
   user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
   pointer-events: none;
-`;
-
-const PlayButton = styled.button`
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.7); /* Semi-transparent background */
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  font-size: 24px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-  z-index: 2; /* Ensure it's above the card */
-
-  &:hover {
-    background: rgba(0, 0, 0, 0.9); /* Darker on hover */
-  }
 `;
 
 const Button = styled.button`
   background: #1DB954;
   color: white;
   border: none;
-  padding: 10px 20px;
-  border-radius: 20px;
+  padding: 16px 32px;
+  border-radius: 24px;
   cursor: pointer;
-  font-size: 16px;
-  margin: 10px;
-  
+  font-size: 20px;
+  margin: 16px;
   &:hover {
     background: #1ed760;
   }
@@ -164,12 +135,12 @@ const SwipeIndicator = styled.div<{ direction: 'left' | 'right' }>`
 `;
 
 const PlaylistInput = styled.input`
-  padding: 10px;
-  margin: 10px;
-  width: 300px;
-  border-radius: 20px;
-  border: 2px solid #1DB954;
-  font-size: 16px;
+  padding: 16px;
+  margin: 16px;
+  width: 380px;
+  border-radius: 24px;
+  border: 2.5px solid #1DB954;
+  font-size: 20px;
   &:focus {
     outline: none;
     border-color: #1ed760;
@@ -177,7 +148,7 @@ const PlaylistInput = styled.input`
 `;
 
 const RemovedSongsList = styled.div<{isScrollable?: boolean}>`
-  margin-top: 20px;
+  margin-top: 80px; // Increased from 20px to move it down
   color: white;
   position: absolute;
   left: 20px;
@@ -226,7 +197,7 @@ const ApplyButton = styled(Button)`
 `;
 
 const KeptSongsList = styled.div<{isScrollable?: boolean}>`
-  margin-top: 20px;
+  margin-top: 80px; // Increased from 20px to move it down
   color: white;
   position: absolute;
   right: 20px;
@@ -270,6 +241,104 @@ const CardAndButtonContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center; /* Center the card and button horizontally */
+  margin-top: 30px; 
+`;
+
+const TopBar = styled.div`
+  width: 100vw;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  padding: 24px 36px 0 36px;
+  z-index: 2000;
+  pointer-events: none;
+`;
+
+const TopBarButton = styled(Button)`
+  margin: 0 0 0 0;
+  font-size: 1.1rem;
+  padding: 12px 28px;
+  pointer-events: auto;
+`;
+
+const Logo = styled.h1`
+  color: #1DB954; // Spotify green
+  font-size: 3.5rem;
+  margin-bottom: 36px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  background: none;
+  text-align: center;
+  width: 100%;
+  position: absolute;
+  top: -25px; 
+  left: 0;
+  z-index: 1500;
+  pointer-events: none;
+`;
+
+const PlaylistHeaderButton = styled.button`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  position: absolute;
+  top: 18px;
+  left: 1150px;
+  z-index: 1600;
+  gap: 20px;
+  background: rgba(25,25,25,0.92);
+  border-radius: 18px;
+  padding: 12px 28px 12px 18px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.12);
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+  outline: none;
+`;
+
+const PlaylistLabel = styled.div<{ $hovered?: boolean }>`
+  color: #1DB954;
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  margin-right: 18px;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  transition: color 0.2s;
+  ${({ $hovered }) => $hovered && `
+    color: #fff;
+  `}
+`;
+
+const SwitchText = styled.span`
+  color: #1DB954;
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  margin-right: 18px;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  transition: color 0.2s;
+`;
+
+const PlaylistCover = styled.img`
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  object-fit: cover;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+  background: #232323;
+`;
+
+const PlaylistTitle = styled.div`
+  color: #fff;
+  font-weight: bold;
+  font-size: 1.5rem;
+  text-align: left;
+  max-width: 320px;
+  word-break: break-word;
 `;
 
 interface Song {
@@ -286,17 +355,11 @@ interface Song {
 interface SwipeableCardProps {
   song: Song;
   onSwipe: (direction: string) => void;
-  onPlayClick: () => void;
 }
 
-const SwipeableCard: React.FC<SwipeableCardProps> = ({ song, onSwipe, onPlayClick }) => {
+const SwipeableCard: React.FC<SwipeableCardProps> = ({ song, onSwipe }) => {
   const [showLeftIndicator, setShowLeftIndicator] = useState(false);
   const [showRightIndicator, setShowRightIndicator] = useState(false);
-
-  const handlePlayClick = () => {
-    // This will be handled in the parent component (App) via context or prop drilling
-    // For now, it's a placeholder.
-  };
 
   const handlers = useSwipeable({
     onSwiping: (e: SwipeEventData) => {
@@ -338,7 +401,7 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({ song, onSwipe, onPlayClic
       setShowRightIndicator(false);
     },
     trackMouse: true,
-    delta: 1,
+    delta: 40,
     touchEventOptions: { passive: false },
     preventScrollOnSwipe: true,
     trackTouch: true,
@@ -359,12 +422,6 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({ song, onSwipe, onPlayClic
           <Title>{song.name}</Title>
           <Artist>{song.artists && Array.isArray(song.artists) ? song.artists.map(artist => artist.name).join(', ') : 'Unknown Artist'}</Artist>
         </SongInfo>
-        <PlayButton onClick={onPlayClick}>▶</PlayButton>
-        {song.preview_url && (
-          <audio controls src={song.preview_url} style={{ width: '100%', marginTop: '10px' }}>
-            Your browser does not support the audio element.
-          </audio>
-        )}
       </SongCard>
     </div>
   );
@@ -380,6 +437,17 @@ function App() {
   const [swipeActionHistory, setSwipeActionHistory] = useState<{ song: Song; direction: 'left' | 'right' }[]>([]);
   const [keptSongsList, setKeptSongsList] = useState<Song[]>([]);
   const [player, setPlayer] = useState<any>(null);
+  const audioRef = React.useRef<HTMLAudioElement>(null);
+  const [playingPreviewId, setPlayingPreviewId] = useState<string | null>(null);
+  const [currentSongName, setCurrentSongName] = useState<string | null>(null);
+  const [currentSongId, setCurrentSongId] = useState<string | null>(null);
+  const [showEmbed, setShowEmbed] = useState(() => {
+    const stored = localStorage.getItem('showEmbed');
+    return stored === null ? true : stored === 'true';
+  });
+  const [playlistName, setPlaylistName] = useState<string>('');
+  const [playlistImage, setPlaylistImage] = useState<string>(''); // New state for playlist image
+  const [playlistHeaderHovered, setPlaylistHeaderHovered] = useState(false);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -570,34 +638,32 @@ function App() {
     }
 
     try {
-      console.log('Making API call to fetch playlist tracks...');
       const response = await axios.get(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+        headers: { Authorization: `Bearer ${token}` }
       });
-      console.log('API response received:', response);
-      console.log('API response data:', response.data);
+
+      // Fetch playlist details for the name and image
+      const playlistResponse = await axios.get(`https://api.spotify.com/v1/playlists/${playlistId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setPlaylistName(playlistResponse.data.name || '');
+      setPlaylistImage(
+        playlistResponse.data.images && playlistResponse.data.images.length > 0
+          ? playlistResponse.data.images[0].url
+          : ''
+      );
 
       if (response.data && Array.isArray(response.data.items)) {
-        console.log('Number of tracks received:', response.data.items.length);
-        if (response.data.items.length > 0) {
-          setSongs(response.data.items
-            .map((item: any) => item.track)
-            .filter((track: any) => track && track.id)); // Only keep valid tracks with an id
-          console.log('Songs state updated.');
-        } else {
-          console.log('Playlist is empty or no tracks found.');
-          setSongs([]);
-        }
+        setSongs(response.data.items
+          .map((item: any) => item.track)
+          .filter((track: any) => track && track.id));
       } else {
-        console.error('Unexpected API response structure - missing or invalid items array:', response.data);
         setSongs([]);
       }
-
     } catch (error) {
-      console.error('Error fetching playlist:', error);
       setSongs([]);
+      setPlaylistName('');
+      setPlaylistImage('');
     }
   };
 
@@ -703,24 +769,149 @@ function App() {
     }
   };
 
+  const handlePlayPreview = (song: Song) => {
+    if (!song.preview_url) return;
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    // If clicking the same song, toggle pause/play
+    if (playingPreviewId === song.id) {
+      if (!audio.paused) {
+        audio.pause();
+      } else {
+        audio.play().catch(err => {
+          console.warn('Audio play failed:', err);
+        });
+      }
+    } else {
+      setPlayingPreviewId(song.id);
+      // Set src and play
+      audio.src = song.preview_url;
+      audio.currentTime = 0;
+      audio.play().catch(err => {
+        console.warn('Audio play failed:', err);
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (playingPreviewId && audioRef.current) {
+      // Try to play when preview changes
+      audioRef.current.currentTime = 0;
+      audioRef.current.play().catch((err) => {
+        // Some browsers require user interaction
+        console.warn('Audio play failed:', err);
+      });
+    }
+  }, [playingPreviewId]);
+
+  // Get the current song on the card
+  const currentSong = songs[currentIndex];
+
+
+  // Fetch and log the song name from Spotify API when currentSong changes
+  useEffect(() => {
+    if (currentSong && token) {
+      console.log('Current card song id:', currentSong.id);
+
+      // Fetch song details from Spotify API
+      axios.get(`https://api.spotify.com/v1/tracks/${currentSong.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+      .then(response => {
+        if (response.data && response.data.name) {
+          console.log('Fetched song name from Spotify API:', response.data.name);
+          setCurrentSongName(response.data.name);
+          setCurrentSongId(response.data.id);
+        } else {
+          console.log('Could not fetch song name from Spotify API.');
+          setCurrentSongName(null);
+          setCurrentSongId(null);
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching song from Spotify API:', error);
+        setCurrentSongName(null);
+        setCurrentSongId(null);
+      });
+    } else {
+      setCurrentSongName(null);
+      setCurrentSongId(null);
+    }
+  }, [currentSong, token]);
+
+  useEffect(() => {
+    localStorage.setItem('showEmbed', showEmbed.toString());
+  }, [showEmbed]);
+
   if (!token) {
     return (
       <AppContainer>
-        <Button onClick={handleLogin}>
-          Login to Spotify
-        </Button>
+        <h1 style={{
+          color: '#1DB954',
+          fontSize: '3.5rem',
+          marginBottom: 36,
+          fontWeight: 900,
+          letterSpacing: 2,
+          textShadow: '0 2px 12px rgba(0,0,0,0.08)'
+        }}>
+          TrackSwipe
+        </h1>
+        <div style={{
+          background: 'rgba(25,25,25,0.85)',
+          borderRadius: 20,
+          padding: 36,
+          boxShadow: '0 4px 32px rgba(0,0,0,0.25)',
+          marginBottom: 40,
+          minWidth: 380,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center'
+        }}>
+          <div style={{ marginBottom: 24, fontSize: 22, color: '#fff' }}>
+            Options
+          </div>
+          <label style={{ color: '#fff', fontSize: 20, marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
+            <input
+              type="checkbox"
+              checked={showEmbed}
+              onChange={() => setShowEmbed(v => !v)}
+              style={{ accentColor: '#1DB954', width: 22, height: 22 }}
+            />
+            Show Spotify Embed Player
+          </label>
+          <Button onClick={handleLogin}>
+            Login to Spotify
+          </Button>
+        </div>
       </AppContainer>
     );
   }
 
   return (
     <StyleSheetManager shouldForwardProp={shouldForwardProp}>
+      {/* TopBar with Undo (left) and Logout (right) */}
+      <TopBar>
+        <div>
+          {swipeActionHistory.length > 0 && (
+            <TopBarButton
+              onClick={handleUndo}
+              disabled={swipeActionHistory.length === 0}
+            >
+              Undo ({swipeActionHistory.length})
+            </TopBarButton>
+          )}
+        </div>
+        <div>
+          <TopBarButton onClick={logout}>Logout</TopBarButton>
+        </div>
+      </TopBar>
+      {songs.length > 0 && (
+        <Logo>TrackSwipe</Logo>
+      )}
       <AppContainer>
-        <Button onClick={logout}>Logout</Button>
-        {swipeActionHistory.length > 0 && (
-          <Button onClick={handleUndo} style={{ marginLeft: '10px' }} disabled={swipeActionHistory.length === 0}>Undo ({swipeActionHistory.length})</Button>
-        )}
-        
         {songs.length === 0 ? (
           <div>
             <PlaylistInput
@@ -736,6 +927,37 @@ function App() {
           </div>
         ) : (
           <>
+            {playlistName && (
+              <PlaylistHeaderButton
+                onMouseEnter={() => setPlaylistHeaderHovered(true)}
+                onMouseLeave={() => setPlaylistHeaderHovered(false)}
+                onClick={() => {
+                  setSongs([]);
+                  setPlaylistId('');
+                  setPlaylistUrl('');
+                  setPlaylistName('');
+                  setPlaylistImage('');
+                  setCurrentIndex(0);
+                  setRemovedSongsStack([]);
+                  setSwipeActionHistory([]);
+                  setKeptSongsList([]);
+                }}
+                title="Switch playlist"
+              >
+                {playlistHeaderHovered ? (
+                  <SwitchText>Switch?</SwitchText>
+                ) : (
+                  <PlaylistLabel>Playlist:</PlaylistLabel>
+                )}
+                {playlistImage && (
+                  <PlaylistCover
+                    src={playlistImage}
+                    alt="Playlist cover"
+                  />
+                )}
+                <PlaylistTitle>{playlistName}</PlaylistTitle>
+              </PlaylistHeaderButton>
+            )}
             <MainContent>
               {removedSongsStack.length > 0 && (
                 <RemovedSongsList isScrollable={removedSongsStack.length > 10}>
@@ -758,14 +980,13 @@ function App() {
               )}
               <CardAndButtonContainer>
                 <CardContainer>
-                  {songs.slice(currentIndex, currentIndex + 1).map((song) => (
+                  {currentSong && (
                     <SwipeableCard
-                      key={song.id}
-                      song={song}
+                      key={currentSong.id}
+                      song={currentSong}
                       onSwipe={handleSwipe}
-                      onPlayClick={() => playSong(`spotify:track:${song.id}`)}
                     />
-                  ))}
+                  )}
                   {currentIndex >= songs.length && (
                     <div style={{ color: 'white', textAlign: 'center', marginTop: '40px', fontSize: '1.2em' }}>
                       No more songs in this playlist!
@@ -800,9 +1021,44 @@ function App() {
             </MainContent>
           </>
         )}
+        <audio
+          ref={audioRef}
+          src={playingPreviewId ? songs.find(song => song.id === playingPreviewId)?.preview_url : undefined}
+          onEnded={() => setPlayingPreviewId(null)}
+          style={{ display: 'none' }}
+        />
+        {showEmbed && currentSongId && (
+          <div
+            style={{
+              position: 'fixed',
+              bottom: 0,
+              left: 0,
+              width: '100vw',
+              background: 'rgba(25, 25, 25, 0.98)',
+              zIndex: 1000,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              padding: '12px 0'
+            }}
+          >
+            <div style={{ color: '#fff', marginBottom: 6, fontWeight: 'bold', fontSize: 16 }}>
+              {currentSongName}
+            </div>
+            <iframe
+              title="Spotify Embed Player"
+              src={`https://open.spotify.com/embed/track/${currentSongId}`}
+              width="340"
+              height="80"
+              frameBorder="0"
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+              style={{ borderRadius: 8, background: '#191414' }}
+            />
+          </div>
+        )}
       </AppContainer>
     </StyleSheetManager>
   );
 }
 
-export default App; 
+export default App;

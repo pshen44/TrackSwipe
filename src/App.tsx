@@ -449,6 +449,9 @@ function App() {
   const [playlistImage, setPlaylistImage] = useState<string>(''); // New state for playlist image
   const [playlistHeaderHovered, setPlaylistHeaderHovered] = useState(false);
 
+  // Check if the app is running on localhost
+  const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
@@ -1027,33 +1030,22 @@ function App() {
           onEnded={() => setPlayingPreviewId(null)}
           style={{ display: 'none' }}
         />
-        {showEmbed && currentSongId && (
-          <div
-            style={{
-              position: 'fixed',
-              bottom: 0,
-              left: 0,
-              width: '100vw',
-              background: 'rgba(25, 25, 25, 0.98)',
-              zIndex: 1000,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              padding: '12px 0'
-            }}
-          >
-            <div style={{ color: '#fff', marginBottom: 6, fontWeight: 'bold', fontSize: 16 }}>
-              {currentSongName}
-            </div>
+        {showEmbed && currentSongId && isLocalhost && (
+          <div style={{ marginTop: 24 }}>
             <iframe
-              title="Spotify Embed Player"
               src={`https://open.spotify.com/embed/track/${currentSongId}`}
               width="340"
               height="80"
               frameBorder="0"
-              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-              style={{ borderRadius: 8, background: '#191414' }}
+              allow="encrypted-media"
+              title="Spotify Player"
+              style={{ borderRadius: 12 }}
             />
+          </div>
+        )}
+        {showEmbed && currentSongId && !isLocalhost && (
+          <div style={{ color: '#ff4b4b', marginTop: 24 }}>
+            Spotify embed player is only available on localhost due to Spotify restrictions.
           </div>
         )}
       </AppContainer>

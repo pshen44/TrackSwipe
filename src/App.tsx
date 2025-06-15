@@ -16,7 +16,7 @@ declare global {
 }
 
 const CLIENT_ID = '06b9dadfd2144324a7ed4d37dbe1245f'; // Replace with your Spotify Client ID
-const REDIRECT_URI = 'http://127.0.0.1:3000'; // Make sure this matches your Spotify app settings
+const REDIRECT_URI = window.location.origin;
 const AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';
 const TOKEN_ENDPOINT = 'https://accounts.spotify.com/api/token';
 const SCOPE = 'playlist-read-private playlist-modify-private playlist-modify-public';

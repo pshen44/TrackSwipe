@@ -16,7 +16,7 @@ declare global {
 }
 
 const CLIENT_ID = '06b9dadfd2144324a7ed4d37dbe1245f'; // Replace with your Spotify Client ID
-const REDIRECT_URI = window.location.origin;
+const REDIRECT_URI = 'http://127.0.0.1:3000'; // Make sure this matches your Spotify app settings
 const AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';
 const TOKEN_ENDPOINT = 'https://accounts.spotify.com/api/token';
 const SCOPE = 'playlist-read-private playlist-modify-private playlist-modify-public';
@@ -76,7 +76,7 @@ const SongCard = styled.div<{ transform?: string }>`
   border: 2.5px solid transparent;
   color: #fff; // Make all text inside the card white
   &:hover {
-    border-color: #1DB954;
+    border-color: #1db954;
   }
 `;
 
@@ -105,7 +105,7 @@ const AlbumArt = styled.img`
 `;
 
 const Button = styled.button`
-  background: #1DB954;
+  background: #1db954;
   color: white;
   border: none;
   padding: 16px 32px;
@@ -448,9 +448,6 @@ function App() {
   const [playlistName, setPlaylistName] = useState<string>('');
   const [playlistImage, setPlaylistImage] = useState<string>(''); // New state for playlist image
   const [playlistHeaderHovered, setPlaylistHeaderHovered] = useState(false);
-
-  // Check if the app is running on localhost
-  const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -849,6 +846,10 @@ function App() {
     localStorage.setItem('showEmbed', showEmbed.toString());
   }, [showEmbed]);
 
+  const isLocalhost =
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1';
+
   if (!token) {
     return (
       <AppContainer>
@@ -1030,23 +1031,24 @@ function App() {
           onEnded={() => setPlayingPreviewId(null)}
           style={{ display: 'none' }}
         />
-        {showEmbed && currentSongId && isLocalhost && (
-          <div style={{ marginTop: 24 }}>
-            <iframe
-              src={`https://open.spotify.com/embed/track/${currentSongId}`}
-              width="340"
-              height="80"
-              frameBorder="0"
-              allow="encrypted-media"
-              title="Spotify Player"
-              style={{ borderRadius: 12 }}
-            />
-          </div>
-        )}
-        {showEmbed && currentSongId && !isLocalhost && (
-          <div style={{ color: '#ff4b4b', marginTop: 24 }}>
-            Spotify embed player is only available on localhost due to Spotify restrictions.
-          </div>
+        {showEmbed && currentSongId && (
+          isLocalhost ? (
+            <div style={{ marginTop: 24 }}>
+              <iframe
+                src={`https://open.spotify.com/embed/track/${currentSongId}`}
+                width="340"
+                height="80"
+                frameBorder="0"
+                allow="encrypted-media"
+                title="Spotify Player"
+                style={{ borderRadius: 12 }}
+              />
+            </div>
+          ) : (
+            <div style={{ color: '#ff4b4b', marginTop: 24 }}>
+              Spotify embed player cannot be displayed on this domain due to Spotify restrictions.
+            </div>
+          )
         )}
       </AppContainer>
     </StyleSheetManager>

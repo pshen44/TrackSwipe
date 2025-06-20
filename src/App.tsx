@@ -1,12 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import styled, { StyleSheetManager } from 'styled-components';
 import axios from 'axios';
 import { generateCodeVerifier, generateCodeChallenge } from './pkce';
 import { useSwipeable, SwipeEventData } from 'react-swipeable';
-import isPropValid from '@emotion/is-prop-valid';
-
-// Filter out the 'isScrollable' prop from being passed to the DOM element
-const shouldForwardProp = (prop: string) => isPropValid(prop) && prop !== 'isScrollable';
 
 declare global {
   interface Window {
@@ -16,7 +12,7 @@ declare global {
 }
 
 const CLIENT_ID = '06b9dadfd2144324a7ed4d37dbe1245f'; // Replace with your Spotify Client ID
-const REDIRECT_URI = window.location.origin;
+const REDIRECT_URI = 'http://127.0.0.1:3000'; // Make sure this matches your Spotify app settings
 const AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';
 const TOKEN_ENDPOINT = 'https://accounts.spotify.com/api/token';
 const SCOPE = 'playlist-read-private playlist-modify-private playlist-modify-public';
@@ -76,7 +72,7 @@ const SongCard = styled.div<{ transform?: string }>`
   border: 2.5px solid transparent;
   color: #fff; // Make all text inside the card white
   &:hover {
-    border-color: #1DB954;
+    border-color: #1db954;
   }
 `;
 
@@ -105,7 +101,7 @@ const AlbumArt = styled.img`
 `;
 
 const Button = styled.button`
-  background: #1DB954;
+  background: #1db954;
   color: white;
   border: none;
   padding: 16px 32px;
@@ -135,15 +131,41 @@ const SwipeIndicator = styled.div<{ direction: 'left' | 'right' }>`
 `;
 
 const PlaylistInput = styled.input`
-  padding: 16px;
-  margin: 16px;
-  width: 380px;
-  border-radius: 24px;
+  padding: 22px;
+  margin: 24px;
+  width: 440px;
+  border-radius: 28px;
   border: 2.5px solid #1DB954;
-  font-size: 20px;
+  font-size: 1.5rem;
   &:focus {
     outline: none;
     border-color: #1ed760;
+  }
+`;
+
+const LoadPlaylistButton = styled(Button)`
+  font-size: 2rem;
+  padding: 24px 48px;
+  margin: 32px 0 0 0;
+`;
+
+const TransparentLogoutButton = styled.button`
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(25, 25, 25, 0.0);
+  border: 2px solid #1DB954;
+  color: #1DB954;
+  padding: 14px 32px;
+  border-radius: 18px;
+  cursor: pointer;
+  font-size: 1.3rem;
+  transition: all 0.3s ease;
+  z-index: 2000;
+  pointer-events: auto;
+  &:hover {
+    background: #1DB954;
+    color: white;
   }
 `;
 
@@ -341,6 +363,185 @@ const PlaylistTitle = styled.div`
   word-break: break-word;
 `;
 
+// Add a flex container for home content
+const HomeContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  width: 100%;
+  margin-top: -150px;
+`;
+
+const AppDescription = styled.p`
+  color: #fff;
+  font-size: 1.5rem;
+  text-align: center;
+  width: 100%;
+  opacity: 0.9;
+  font-weight: 300;
+  letter-spacing: 0.5px;
+  margin: 40px 0 0 0;
+  padding: 0 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const ShimmeringLogo = styled.h1`
+  color: #1DB954;
+  font-size: 6rem;
+  margin-bottom: 0;
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  background: linear-gradient(
+    90deg,
+    #1DB954 0%,
+    #1ed760 25%,
+    #ffffff 50%,
+    #1ed760 75%,
+    #1DB954 100%
+  );
+  background-size: 300% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shine 4s ease-in-out infinite;
+  text-align: center;
+  width: 100%;
+  pointer-events: none;
+
+  @keyframes shine {
+    0% {
+      background-position: 0% center;
+    }
+    50% {
+      background-position: 100% center;
+    }
+    100% {
+      background-position: 0% center;
+    }
+  }
+`;
+
+const GetStartedButton = styled(Button)`
+  font-size: 2.2rem;
+  padding: 28px 56px;
+  margin-top: 64px;
+  background: linear-gradient(45deg, #1DB954, #1ed760);
+  box-shadow: 0 4px 15px rgba(29, 185, 84, 0.3);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(29, 185, 84, 0.4);
+    background: linear-gradient(45deg, #1ed760, #1DB954);
+  }
+`;
+
+const OptionsButton = styled.button`
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(25, 25, 25, 0.0);
+  border: 2px solid #1DB954;
+  color: #1DB954;
+  padding: 14px 32px;
+  border-radius: 18px;
+  cursor: pointer;
+  font-size: 1.3rem;
+  transition: all 0.3s ease;
+  z-index: 2000;
+  pointer-events: auto;
+  &:hover {
+    background: #1DB954;
+    color: white;
+  }
+`;
+
+const OptionsModal = styled.div<{ $isOpen: boolean }>`
+  position: fixed;
+  top: 70px;
+  right: 20px;
+  background: rgba(25, 25, 25, 0.95);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border: 1px solid #1DB954;
+  z-index: 2000;
+  opacity: ${props => props.$isOpen ? 1 : 0};
+  visibility: ${props => props.$isOpen ? 'visible' : 'hidden'};
+  transform: translateY(${props => props.$isOpen ? '0' : '-10px'});
+  transition: all 0.3s ease;
+`;
+
+const BetaButton = styled(Button)`
+  font-size: 1.5rem;
+  padding: 18px 36px;
+  margin-top: 32px;
+  background: linear-gradient(45deg, #1ed760, #1DB954);
+  box-shadow: 0 2px 8px rgba(29, 185, 84, 0.18);
+  border: 2px dashed #1DB954;
+  &:hover {
+    background: linear-gradient(45deg, #1DB954, #1ed760);
+    border-style: solid;
+  }
+`;
+
+const PlaylistPickerContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 80px;
+`;
+
+const PlaylistsScrollBox = styled.div`
+  width: 420px;
+  max-height: 500px;
+  overflow-y: auto;
+  background: rgba(0,0,0,0.25);
+  border-radius: 18px;
+  border: 2px solid #1DB954;
+  padding: 24px 0;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+`;
+
+const PlaylistItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 16px 32px;
+  cursor: pointer;
+  border-bottom: 1px solid #232323;
+  transition: background 0.2s;
+  &:hover {
+    background: #232323;
+  }
+`;
+
+const PlaylistCoverSmall = styled.img`
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: #232323;
+`;
+
+const PlaylistName = styled.div`
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 600;
+`;
+
+const PlaylistTracks = styled.div`
+  color: #1DB954;
+  font-size: 1rem;
+  font-weight: 400;
+`;
+
+// Add SpotifyPlaylist type for the beta picker
 interface Song {
   id: string;
   name: string;
@@ -420,12 +621,127 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({ song, onSwipe }) => {
         <AlbumArt src={song.album.images[0]?.url} alt={song.album.name} />
         <SongInfo>
           <Title>{song.name}</Title>
-          <Artist>{song.artists && Array.isArray(song.artists) ? song.artists.map(artist => artist.name).join(', ') : 'Unknown Artist'}</Artist>
+          <Artist>{song.artists && Array.isArray(song.artists) ? song.artists.map((artist: { name: string }) => artist.name).join(', ') : 'Unknown Artist'}</Artist>
         </SongInfo>
       </SongCard>
     </div>
   );
 };
+
+interface SpotifyPlaylist {
+  id: string;
+  name: string;
+  images: { url: string }[];
+  tracks: { total: number };
+  owner: { id: string };
+}
+
+interface PlaylistPickerBetaProps {
+  token: string;
+  onSelect: (pl: SpotifyPlaylist) => void;
+  onBack: () => void;
+}
+
+function PlaylistPickerBeta({ token, onSelect, onBack }: PlaylistPickerBetaProps) {
+  const [playlists, setPlaylists] = useState<SpotifyPlaylist[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!token) return;
+    setLoading(true);
+    setError('');
+    // Fetch user ID first
+    axios.get('https://api.spotify.com/v1/me', {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(userRes => {
+        setUserId(userRes.data.id);
+        // Now fetch playlists
+        return axios.get('https://api.spotify.com/v1/me/playlists?limit=50', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      })
+      .then(res => {
+        setPlaylists(res.data.items || []);
+        setLoading(false);
+      })
+      .catch(err => {
+        setError('Failed to load playlists.');
+        setLoading(false);
+      });
+  }, [token]);
+
+  // Only show playlists owned by the user
+  const ownedPlaylists = userId ? playlists.filter(pl => pl.owner?.id === userId) : [];
+
+  return (
+    <PlaylistPickerContainer>
+      <h2 style={{ color: '#1DB954', marginBottom: 24 }}>Choose a Playlist (Beta)</h2>
+      {loading && <div style={{ color: '#fff' }}>Loading...</div>}
+      {error && <div style={{ color: '#ff4b4b' }}>{error}</div>}
+      <PlaylistsScrollBox>
+        {ownedPlaylists.map((pl) => (
+          <PlaylistItem key={pl.id} onClick={() => onSelect(pl)}>
+            <PlaylistCoverSmall src={pl.images?.[0]?.url} alt={pl.name} />
+            <div>
+              <PlaylistName>{pl.name}</PlaylistName>
+              <PlaylistTracks>{pl.tracks?.total || 0} tracks</PlaylistTracks>
+            </div>
+          </PlaylistItem>
+        ))}
+        {(!loading && ownedPlaylists.length === 0) && (
+          <div style={{ color: '#fff', padding: 24, textAlign: 'center' }}>
+            No editable playlists found.<br />You can only edit playlists you own.
+          </div>
+        )}
+      </PlaylistsScrollBox>
+      <BetaButton style={{ marginTop: 32 }} onClick={onBack}>Back</BetaButton>
+    </PlaylistPickerContainer>
+  );
+}
+
+// Extracted LoadingSpinner component
+const LoadingSpinner = () => (
+  <>
+    <div style={{ border: '6px solid #232323', borderTop: '6px solid #1DB954', borderRadius: '50%', width: 60, height: 60, animation: 'spin 1s linear infinite' }} />
+    <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+  </>
+);
+
+// Extracted SongList component
+const SongList: React.FC<{ songs: Song[] }> = ({ songs }) => (
+  <ul>
+    {songs.map((song) => {
+      const artistNames = song.artists && Array.isArray(song.artists)
+        ? song.artists.map((artist: { name: string }) => artist.name).join(', ')
+        : 'Unknown Artist';
+      const albumArtUrl = song.album?.images?.[0]?.url || '';
+      return (
+        <li key={song.id}>
+          {albumArtUrl && <img src={albumArtUrl} alt={song.album?.name || 'Album art'} />}
+          <div>
+            <strong>{song.name}</strong> by {artistNames}
+          </div>
+        </li>
+      );
+    })}
+  </ul>
+);
+
+const BetaNotice = styled.div`
+  background: linear-gradient(90deg, #1DB954 0%, #1ed760 100%);
+  color: #191414;
+  font-weight: bold;
+  font-size: 1.1rem;
+  padding: 10px 32px;
+  border-radius: 16px;
+  margin: 32px 0 0 0;
+  letter-spacing: 1px;
+  box-shadow: 0 2px 8px rgba(29,185,84,0.10);
+  display: inline-block;
+`;
 
 function App() {
   const [token, setToken] = useState<string | null>(null);
@@ -448,6 +764,10 @@ function App() {
   const [playlistName, setPlaylistName] = useState<string>('');
   const [playlistImage, setPlaylistImage] = useState<string>(''); // New state for playlist image
   const [playlistHeaderHovered, setPlaylistHeaderHovered] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
+  const [showPlaylistPickerBeta, setShowPlaylistPickerBeta] = useState(false);
+  const [loadingSongs, setLoadingSongs] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -477,16 +797,20 @@ function App() {
             } else {
               console.error('Token exchange failed:', data);
             }
+            setInitialLoading(false);
           })
           .catch(error => {
             console.error('Error exchanging code for token:', error);
+            setInitialLoading(false);
           });
       } else {
         console.error('PKCE code verifier not found in local storage.');
+        setInitialLoading(false);
       }
     } else {
       const storedToken = localStorage.getItem('token');
       setToken(storedToken);
+      setInitialLoading(false);
     }
   }, []);
 
@@ -627,23 +951,27 @@ function App() {
     return url; // Return original input if no pattern matches
   };
 
-  const fetchPlaylistSongs = async () => {
+  // Update fetchPlaylistSongs to set loadingSongs
+  const fetchPlaylistSongs = async (customPlaylistId?: string) => {
+    const idToFetch = customPlaylistId || playlistId;
+    setLoadingSongs(true);
     console.log('fetchPlaylistSongs called');
     console.log('Current Token:', token ? 'Present' : 'Missing');
-    console.log('Current Playlist ID:', playlistId);
+    console.log('Current Playlist ID:', idToFetch);
 
-    if (!token || !playlistId) {
+    if (!token || !idToFetch) {
+      setLoadingSongs(false);
       console.log('Token or Playlist ID missing. Returning.');
       return;
     }
 
     try {
-      const response = await axios.get(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
+      const response = await axios.get(`https://api.spotify.com/v1/playlists/${idToFetch}/tracks`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
       // Fetch playlist details for the name and image
-      const playlistResponse = await axios.get(`https://api.spotify.com/v1/playlists/${playlistId}`, {
+      const playlistResponse = await axios.get(`https://api.spotify.com/v1/playlists/${idToFetch}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setPlaylistName(playlistResponse.data.name || '');
@@ -664,55 +992,43 @@ function App() {
       setSongs([]);
       setPlaylistName('');
       setPlaylistImage('');
+    } finally {
+      setLoadingSongs(false);
     }
   };
 
-  const handleSwipe = async (direction: string) => {
+  // Use useMemo for currentSong
+  const currentSong = useMemo(() => songs[currentIndex], [songs, currentIndex]);
+
+  // Use useCallback for handlers
+  const handleSwipe = useCallback(async (direction: string) => {
     console.log('Swiped: ' + direction);
     const swipedSong = songs[currentIndex];
-
-    // Record the swipe action in history
     setSwipeActionHistory(prevHistory => [...prevHistory, { song: swipedSong, direction: direction as 'left' | 'right' }]);
-
     if (direction === 'left') {
-      // Add song to the stack of songs to be removed on apply
       setRemovedSongsStack(prev => [...prev, swipedSong]);
     } else if (direction === 'right') {
       console.log('Song kept:', swipedSong.name);
-      // Add song to the kept songs list
       setKeptSongsList(prev => [...prev, swipedSong]);
     }
-    // Always increment index after a swipe
     setCurrentIndex(prevIndex => prevIndex + 1);
-  };
+  }, [songs, currentIndex]);
 
-  const handleUndo = async () => {
-    // Check if there is any action to undo
+  const handleUndo = useCallback(async () => {
     if (swipeActionHistory.length === 0) {
       console.log('No actions to undo.');
       return;
     }
-
-    // Get the last action from history
     const lastAction = swipeActionHistory[swipeActionHistory.length - 1];
     const songToUndo = lastAction.song;
     const lastSwipeDirection = lastAction.direction;
-
-    // Remove the last action from history
     setSwipeActionHistory(prevHistory => prevHistory.slice(0, -1));
-
-    // Decrement current index to go back to the previous song
     setCurrentIndex(prevIndex => prevIndex - 1);
-
-    // If the last action was 'left' (remove), remove it from the removedSongsStack
     if (lastSwipeDirection === 'left') {
-      // Remove the song from the removedSongsStack
       setRemovedSongsStack(prev => prev.filter(song => song.id !== songToUndo.id));
       console.log('Undo: Song removed from removedSongsStack:', songToUndo.name);
-      // Attempt to add the song back to the playlist on Spotify
       if (!token || !playlistId || !songToUndo) {
         console.error('Cannot add song back to Spotify: Missing token, playlist ID, or song data.');
-        // Optionally, inform the user that the Spotify update failed
       } else {
         try {
           await axios.post(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
@@ -725,15 +1041,13 @@ function App() {
           console.log('Song added back to playlist on Spotify:', songToUndo.name);
         } catch (error) {
           console.error('Error adding song back to Spotify:', error);
-          // Optionally, inform the user that the Spotify update failed
         }
       }
     } else if (lastSwipeDirection === 'right') {
-      // Remove the song from the keptSongsList
       setKeptSongsList(prev => prev.filter(song => song.id !== songToUndo.id));
       console.log('Undo: Song removed from keptSongsList:', songToUndo.name);
     }
-  };
+  }, [swipeActionHistory, token, playlistId]);
 
   const applyRemovals = async () => {
     if (!token || !playlistId || removedSongsStack.length === 0) {
@@ -805,10 +1119,6 @@ function App() {
     }
   }, [playingPreviewId]);
 
-  // Get the current song on the card
-  const currentSong = songs[currentIndex];
-
-
   // Fetch and log the song name from Spotify API when currentSong changes
   useEffect(() => {
     if (currentSong && token) {
@@ -846,66 +1156,103 @@ function App() {
     localStorage.setItem('showEmbed', showEmbed.toString());
   }, [showEmbed]);
 
+  const isLocalhost =
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1';
+
+  // Add a styled loading container
+  const LoadingContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    width: 100vw;
+    font-size: 2rem;
+    color: #1DB954;
+    background: #191414;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 3000;
+  `;
+
+  if (initialLoading) {
+    return (
+      <LoadingContainer>
+        <div style={{ marginBottom: 24 }}>Loading...</div>
+        <LoadingSpinner />
+      </LoadingContainer>
+    );
+  }
+
   if (!token) {
     return (
       <AppContainer>
-        <h1 style={{
-          color: '#1DB954',
-          fontSize: '3.5rem',
-          marginBottom: 36,
-          fontWeight: 900,
-          letterSpacing: 2,
-          textShadow: '0 2px 12px rgba(0,0,0,0.08)'
-        }}>
-          TrackSwipe
-        </h1>
-        <div style={{
-          background: 'rgba(25,25,25,0.85)',
-          borderRadius: 20,
-          padding: 36,
-          boxShadow: '0 4px 32px rgba(0,0,0,0.25)',
-          marginBottom: 40,
-          minWidth: 380,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center'
-        }}>
-          <div style={{ marginBottom: 24, fontSize: 22, color: '#fff' }}>
+        <HomeContent>
+          <ShimmeringLogo>TrackSwipe</ShimmeringLogo>
+          <BetaNotice>Beta Version – Features and UI may change</BetaNotice>
+          <AppDescription>
+            Swipe through your Spotify playlists to curate the perfect collection
+          </AppDescription>
+          <GetStartedButton onClick={() => handleLogin()}>
+            Get Started
+          </GetStartedButton>
+        </HomeContent>
+        <OptionsButton onClick={() => setShowOptions(!showOptions)}>
+          Options
+        </OptionsButton>
+        <OptionsModal $isOpen={showOptions}>
+          <div style={{ marginBottom: 16, fontSize: 20, color: '#fff' }}>
             Options
           </div>
-          <label style={{ color: '#fff', fontSize: 20, marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
+          <label style={{ color: '#fff', fontSize: 18, display: 'flex', alignItems: 'center', gap: 12 }}>
             <input
               type="checkbox"
               checked={showEmbed}
               onChange={() => setShowEmbed(v => !v)}
-              style={{ accentColor: '#1DB954', width: 22, height: 22 }}
+              style={{ accentColor: '#1DB954', width: 20, height: 20 }}
             />
             Show Spotify Embed Player
           </label>
-          <Button onClick={handleLogin}>
-            Login to Spotify
-          </Button>
-        </div>
+        </OptionsModal>
+      </AppContainer>
+    );
+  }
+
+  if (showPlaylistPickerBeta && token) {
+    return (
+      <AppContainer>
+        <PlaylistPickerBeta
+          token={token}
+          onSelect={(pl) => {
+            setPlaylistId(pl.id);
+            setPlaylistName(pl.name);
+            setPlaylistImage(pl.images?.[0]?.url || '');
+            setShowPlaylistPickerBeta(false);
+            fetchPlaylistSongs(pl.id); // Pass the selected playlist's ID directly
+          }}
+          onBack={() => setShowPlaylistPickerBeta(false)}
+        />
+        <TransparentLogoutButton onClick={logout}>Logout</TransparentLogoutButton>
       </AppContainer>
     );
   }
 
   return (
-    <StyleSheetManager shouldForwardProp={shouldForwardProp}>
+    <StyleSheetManager>
       {/* TopBar with Undo (left) and Logout (right) */}
       <TopBar>
         <div>
           {swipeActionHistory.length > 0 && (
             <TopBarButton
-              onClick={handleUndo}
+              onClick={() => handleUndo()}
               disabled={swipeActionHistory.length === 0}
             >
               Undo ({swipeActionHistory.length})
             </TopBarButton>
           )}
-        </div>
-        <div>
-          <TopBarButton onClick={logout}>Logout</TopBarButton>
         </div>
       </TopBar>
       {songs.length > 0 && (
@@ -913,18 +1260,28 @@ function App() {
       )}
       <AppContainer>
         {songs.length === 0 ? (
-          <div>
-            <PlaylistInput
-              type="text"
-              placeholder="Paste Spotify playlist URL or ID"
-              value={playlistUrl}
-              onChange={(e) => {
-                setPlaylistUrl(e.target.value);
-                setPlaylistId(extractPlaylistId(e.target.value));
-              }}
-            />
-            <Button onClick={fetchPlaylistSongs} disabled={!playlistId}>Load Playlist</Button>
-          </div>
+          loadingSongs ? (
+            <LoadingContainer>
+              <div style={{ marginBottom: 24 }}>Loading playlist...</div>
+              <LoadingSpinner />
+            </LoadingContainer>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '120px' }}>
+              <PlaylistInput
+                type="text"
+                placeholder="Paste Spotify playlist URL or ID"
+                value={playlistUrl}
+                onChange={(e) => {
+                  setPlaylistUrl(e.target.value);
+                  setPlaylistId(extractPlaylistId(e.target.value));
+                }}
+              />
+              <LoadPlaylistButton onClick={() => fetchPlaylistSongs()} disabled={!playlistId}>Load Playlist</LoadPlaylistButton>
+              <BetaButton onClick={() => setShowPlaylistPickerBeta(true)}>
+                Try Playlist Picker (Beta)
+              </BetaButton>
+            </div>
+          )
         ) : (
           <>
             {playlistName && (
@@ -962,20 +1319,7 @@ function App() {
               {removedSongsStack.length > 0 && (
                 <RemovedSongsList isScrollable={removedSongsStack.length > 10}>
                   <h3>Removed Tracks:</h3>
-                  <ul>
-                    {removedSongsStack.map((song, index) => {
-                      const artistNames = song.artists && Array.isArray(song.artists) ? song.artists.map(artist => artist.name).join(', ') : 'Unknown Artist';
-                      const albumArtUrl = song.album?.images?.[0]?.url || '';
-                      return (
-                        <li key={song.id}>
-                          {albumArtUrl && <img src={albumArtUrl} alt={song.album?.name || 'Album art'} />}
-                          <div>
-                            <strong>{song.name}</strong> by {artistNames}
-                          </div>
-                        </li>
-                      );
-                    })}
-                  </ul>
+                  <SongList songs={removedSongsStack} />
                 </RemovedSongsList>
               )}
               <CardAndButtonContainer>
@@ -994,7 +1338,7 @@ function App() {
                   )}
                 </CardContainer>
                 {removedSongsStack.length > 0 && (
-                  <ApplyButton onClick={applyRemovals} disabled={removedSongsStack.length === 0}>
+                  <ApplyButton onClick={() => applyRemovals()} disabled={removedSongsStack.length === 0}>
                     Apply {removedSongsStack.length} Removal{removedSongsStack.length > 1 ? 's' : ''}
                   </ApplyButton>
                 )}
@@ -1002,20 +1346,7 @@ function App() {
               {keptSongsList.length > 0 && (
                 <KeptSongsList isScrollable={keptSongsList.length > 10}>
                   <h3>Kept Tracks:</h3>
-                  <ul>
-                    {keptSongsList.map((song, index) => {
-                      const artistNames = song.artists && Array.isArray(song.artists) ? song.artists.map(artist => artist.name).join(', ') : 'Unknown Artist';
-                      const albumArtUrl = song.album?.images?.[0]?.url || '';
-                      return (
-                        <li key={song.id}>
-                          {albumArtUrl && <img src={albumArtUrl} alt={song.album?.name || 'Album art'} />}
-                          <div>
-                            <strong>{song.name}</strong> by {artistNames}
-                          </div>
-                        </li>
-                      );
-                    })}
-                  </ul>
+                  <SongList songs={keptSongsList} />
                 </KeptSongsList>
               )}
             </MainContent>
@@ -1028,35 +1359,26 @@ function App() {
           style={{ display: 'none' }}
         />
         {showEmbed && currentSongId && (
-          <div
-            style={{
-              position: 'fixed',
-              bottom: 0,
-              left: 0,
-              width: '100vw',
-              background: 'rgba(25, 25, 25, 0.98)',
-              zIndex: 1000,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              padding: '12px 0'
-            }}
-          >
-            <div style={{ color: '#fff', marginBottom: 6, fontWeight: 'bold', fontSize: 16 }}>
-              {currentSongName}
+          isLocalhost ? (
+            <div style={{ marginTop: 24 }}>
+              <iframe
+                src={`https://open.spotify.com/embed/track/${currentSongId}`}
+                width="340"
+                height="80"
+                frameBorder="0"
+                allow="encrypted-media"
+                title="Spotify Player"
+                style={{ borderRadius: 12 }}
+              />
             </div>
-            <iframe
-              title="Spotify Embed Player"
-              src={`https://open.spotify.com/embed/track/${currentSongId}`}
-              width="340"
-              height="80"
-              frameBorder="0"
-              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-              style={{ borderRadius: 8, background: '#191414' }}
-            />
-          </div>
+          ) : (
+            <div style={{ color: '#ff4b4b', marginTop: 24 }}>
+              Spotify embed player cannot be displayed on this domain due to Spotify restrictions.
+            </div>
+          )
         )}
       </AppContainer>
+      <TransparentLogoutButton onClick={logout}>Logout</TransparentLogoutButton>
     </StyleSheetManager>
   );
 }

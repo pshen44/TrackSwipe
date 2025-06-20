@@ -11,8 +11,8 @@ declare global {
   }
 }
 
-const CLIENT_ID = '06b9dadfd2144324a7ed4d37dbe1245f'; // Replace with your Spotify Client ID
-const REDIRECT_URI = 'http://127.0.0.1:3000'; // Make sure this matches your Spotify app settings
+const CLIENT_ID = process.env.REACT_APP_SPOTIFY_CLIENT_ID;
+const REDIRECT_URI = process.env.REACT_APP_REDIRECT_URI;
 const AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';
 const TOKEN_ENDPOINT = 'https://accounts.spotify.com/api/token';
 const SCOPE = 'playlist-read-private playlist-modify-private playlist-modify-public';
@@ -768,6 +768,21 @@ function App() {
   const [showPlaylistPickerBeta, setShowPlaylistPickerBeta] = useState(false);
   const [loadingSongs, setLoadingSongs] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
+
+  if (!CLIENT_ID || !REDIRECT_URI) {
+    return (
+      <div style={{ padding: '20px', color: '#fff', background: '#191414', height: '100vh' }}>
+        <h1>Configuration Error</h1>
+        <p>Please make sure you have set up your <code>.env</code> file with your Spotify Client ID and Redirect URI.</p>
+        <p>Create a <code>.env</code> file in the root of the project with the following content, replacing the placeholder with your actual client ID:</p>
+        <pre style={{ background: '#232323', padding: '15px', borderRadius: '8px', whiteSpace: 'pre-wrap' }}>
+          REACT_APP_SPOTIFY_CLIENT_ID="your_spotify_client_id_here"<br />
+          REACT_APP_REDIRECT_URI="http://127.0.0.1:3000"
+        </pre>
+        <p>After creating the <code>.env</code> file, you will need to restart the development server.</p>
+      </div>
+    );
+  }
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);

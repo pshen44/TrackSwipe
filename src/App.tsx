@@ -15,7 +15,7 @@ const CLIENT_ID = '06b9dadfd2144324a7ed4d37dbe1245f'; // Replace with your Spoti
 const REDIRECT_URI = 'https://trackswipe.vercel.app/'; // Make sure this matches your Spotify app settings
 const AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';
 const TOKEN_ENDPOINT = 'https://accounts.spotify.com/api/token';
-const SCOPE = 'playlist-read-private playlist-modify-private playlist-modify-public playlist-modify-collaborative';
+const SCOPE = 'playlist-read-private playlist-modify-private playlist-modify-public playlist-read-collaborative';
 
 const SCOPE_PLAYBACK = 'streaming user-read-email user-read-private user-read-playback-state user-modify-playback-state';
 

@@ -15,7 +15,7 @@ const CLIENT_ID = '06b9dadfd2144324a7ed4d37dbe1245f'; // Replace with your Spoti
 const REDIRECT_URI = 'https://trackswipe.vercel.app/'; // Make sure this matches your Spotify app settings
 const AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';
 const TOKEN_ENDPOINT = 'https://accounts.spotify.com/api/token';
-const SCOPE = 'playlist-read-private playlist-modify-private playlist-modify-public';
+const SCOPE = 'playlist-read-private playlist-modify-private playlist-modify-public playlist-modify-collaborative';
 
 const SCOPE_PLAYBACK = 'streaming user-read-email user-read-private user-read-playback-state user-modify-playback-state';
 
@@ -634,6 +634,7 @@ interface SpotifyPlaylist {
   images: { url: string }[];
   tracks: { total: number };
   owner: { id: string };
+  collaborative: boolean;
 }
 
 interface PlaylistPickerBetaProps {
@@ -673,8 +674,8 @@ function PlaylistPickerBeta({ token, onSelect, onBack }: PlaylistPickerBetaProps
       });
   }, [token]);
 
-  // Only show playlists owned by the user
-  const ownedPlaylists = userId ? playlists.filter(pl => pl.owner?.id === userId) : [];
+  // Only show playlists owned by the user or collaborative playlists
+  const editablePlaylists = userId ? playlists.filter(pl => pl.owner?.id === userId || pl.collaborative) : [];
 
   return (
     <PlaylistPickerContainer>
@@ -682,7 +683,7 @@ function PlaylistPickerBeta({ token, onSelect, onBack }: PlaylistPickerBetaProps
       {loading && <div style={{ color: '#fff' }}>Loading...</div>}
       {error && <div style={{ color: '#ff4b4b' }}>{error}</div>}
       <PlaylistsScrollBox>
-        {ownedPlaylists.map((pl) => (
+        {editablePlaylists.map((pl) => (
           <PlaylistItem key={pl.id} onClick={() => onSelect(pl)}>
             <PlaylistCoverSmall src={pl.images?.[0]?.url} alt={pl.name} />
             <div>
@@ -691,9 +692,9 @@ function PlaylistPickerBeta({ token, onSelect, onBack }: PlaylistPickerBetaProps
             </div>
           </PlaylistItem>
         ))}
-        {(!loading && ownedPlaylists.length === 0) && (
+        {(!loading && editablePlaylists.length === 0) && (
           <div style={{ color: '#fff', padding: 24, textAlign: 'center' }}>
-            No editable playlists found.<br />You can only edit playlists you own.
+            No editable playlists found.<br />You can only edit playlists you own or collaborate on.
           </div>
         )}
       </PlaylistsScrollBox>

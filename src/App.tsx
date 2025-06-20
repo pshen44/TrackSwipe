@@ -1156,10 +1156,6 @@ function App() {
     localStorage.setItem('showEmbed', showEmbed.toString());
   }, [showEmbed]);
 
-  const isLocalhost =
-    window.location.hostname === 'localhost' ||
-    window.location.hostname === '127.0.0.1';
-
   // Add a styled loading container
   const LoadingContainer = styled.div`
     display: flex;
@@ -1359,23 +1355,17 @@ function App() {
           style={{ display: 'none' }}
         />
         {showEmbed && currentSongId && (
-          isLocalhost ? (
-            <div style={{ marginTop: 24 }}>
-              <iframe
-                src={`https://open.spotify.com/embed/track/${currentSongId}`}
-                width="340"
-                height="80"
-                frameBorder="0"
-                allow="encrypted-media"
-                title="Spotify Player"
-                style={{ borderRadius: 12 }}
-              />
-            </div>
-          ) : (
-            <div style={{ color: '#ff4b4b', marginTop: 24 }}>
-              Spotify embed player cannot be displayed on this domain due to Spotify restrictions.
-            </div>
-          )
+          <div style={{ marginTop: 24 }}>
+            <iframe
+              src={`https://open.spotify.com/embed/track/${currentSongId}`}
+              width="340"
+              height="80"
+              frameBorder="0"
+              allow="encrypted-media"
+              title="Spotify Player"
+              style={{ borderRadius: 12 }}
+            />
+          </div>
         )}
       </AppContainer>
       <TransparentLogoutButton onClick={logout}>Logout</TransparentLogoutButton>

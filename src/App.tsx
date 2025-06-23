@@ -12,7 +12,7 @@ declare global {
 }
 
 const CLIENT_ID = '06b9dadfd2144324a7ed4d37dbe1245f'; // Replace with your Spotify Client ID
-const REDIRECT_URI = 'https://trackswipe.vercel.app/'; // Make sure this matches your Spotify app settings
+const REDIRECT_URI = 'http://127.0.0.1:3000'; // Make sure this matches your Spotify app settings
 const AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';
 const TOKEN_ENDPOINT = 'https://accounts.spotify.com/api/token';
 const SCOPE = 'playlist-read-private playlist-modify-private playlist-modify-public playlist-read-collaborative';
@@ -27,20 +27,32 @@ const AppContainer = styled.div`
   align-items: center;
   min-height: 100vh;
   background: #191414; // Spotify dark black
-  padding: 40px 0 0 0;
+  padding: 56px 24px 0 24px;
   box-sizing: border-box;
   max-width: 100vw;
   max-height: 100vh;
   overflow-x: hidden;
   font-size: 1.25rem;
+  @media (max-width: 600px) {
+    padding: 48px 12px 0 12px;
+    font-size: 1rem;
+    height: 100vh;
+    overflow-y: hidden;
+    width: 100vw;
+    max-width: 100vw;
+    position: fixed;
+    left: 0;
+    top: 0;
+  }
 `;
 
 const CardContainer = styled.div`
-  width: 380px;
-  height: 520px;
+  width: 320px;
+  height: 420px;
   position: relative;
-  margin: 32px;
+  margin: 32px auto 0 auto;
   transform: translateZ(0);
+  max-width: 92vw;
 `;
 
 const MainContent = styled.div`
@@ -51,28 +63,40 @@ const MainContent = styled.div`
   width: 100%;
   margin-top: 16px; // Reduced from 40px
   position: relative;
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: center;
+    margin-top: 8px;
+  }
 `;
 
 const SongCard = styled.div<{ transform?: string }>`
   position: absolute;
-  width: 100%;
-  height: 100%;
+  width: 320px;
+  height: 420px;
   background: #232323; // Lighter than #191414 for contrast
   border-radius: 32px;
-  padding: 40px;
+  padding: 32px;
   box-shadow: 0px 14px 32px rgba(43, 255, 89, 0.22);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  width: 380px;
-  height: 520px;
   transition: transform 0.3s ease-out;
   transform: ${props => props.transform || 'none'};
   user-select: none;
   border: 2.5px solid transparent;
   color: #fff; // Make all text inside the card white
+  margin: 0 auto;
+  max-width: 92vw;
   &:hover {
     border-color: #1db954;
+  }
+  @media (max-width: 600px) {
+    border-radius: 32px;
+    padding: 16px 8px 20px 8px;
+    box-shadow: 0 4px 18px rgba(29,185,84,0.18);
+    border: 2.5px solid transparent;
+    margin: 0 auto 12px auto;
   }
 `;
 
@@ -83,6 +107,14 @@ const SongInfo = styled.div`
 const Title = styled.h2`
   margin: 0;
   color: #fff; // White title
+  @media (max-width: 600px) {
+    font-size: 1.1rem;
+    text-align: center;
+    padding: 8px 0 0 0;
+    word-break: break-word;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
 `;
 
 const Artist = styled.p`
@@ -92,12 +124,21 @@ const Artist = styled.p`
 
 const AlbumArt = styled.img`
   width: 100%;
-  height: 260px;
+  aspect-ratio: 1/1;
+  height: auto;
   object-fit: cover;
   border-radius: 14px;
   margin: 18px 0;
   user-select: none;
   pointer-events: none;
+  @media (max-width: 600px) {
+    width: 100%;
+    aspect-ratio: 1/1;
+    height: auto;
+    border-radius: 18px;
+    margin: 0;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.10);
+  }
 `;
 
 const Button = styled.button`
@@ -111,6 +152,12 @@ const Button = styled.button`
   margin: 16px;
   &:hover {
     background: #1ed760;
+  }
+  @media (max-width: 600px) {
+    width: 90vw;
+    font-size: 1.1rem;
+    padding: 14px 0;
+    margin: 10px 0;
   }
 `;
 
@@ -141,6 +188,12 @@ const PlaylistInput = styled.input`
     outline: none;
     border-color: #1ed760;
   }
+  @media (max-width: 600px) {
+    width: 90vw;
+    font-size: 1.1rem;
+    padding: 12px;
+    margin: 12px 0;
+  }
 `;
 
 const LoadPlaylistButton = styled(Button)`
@@ -167,6 +220,12 @@ const TransparentLogoutButton = styled.button`
     background: #1DB954;
     color: white;
   }
+  @media (max-width: 600px) {
+    padding: 8px 16px;
+    font-size: 1rem;
+    top: 8px;
+    right: 8px;
+  }
 `;
 
 const RemovedSongsList = styled.div<{isScrollable?: boolean}>`
@@ -184,6 +243,9 @@ const RemovedSongsList = styled.div<{isScrollable?: boolean}>`
   max-height: ${props => props.isScrollable ? '450px' : 'auto'};
   overflow-y: ${props => props.isScrollable ? 'auto' : 'visible'};
   padding-right: 10px;
+  @media (max-width: 600px) {
+    display: none;
+  }
 
   h3 {
     margin-bottom: 10px;
@@ -216,6 +278,12 @@ const ApplyButton = styled(Button)`
   &:hover {
     background: #e04343;
   }
+  @media (max-width: 600px) {
+    font-size: 1rem;
+    padding: 10px 0;
+    width: 60vw;
+    margin-top: 12px;
+  }
 `;
 
 const KeptSongsList = styled.div<{isScrollable?: boolean}>`
@@ -233,6 +301,9 @@ const KeptSongsList = styled.div<{isScrollable?: boolean}>`
   max-height: ${props => props.isScrollable ? '450px' : 'auto'};
   overflow-y: ${props => props.isScrollable ? 'auto' : 'visible'};
   padding-right: 10px;
+  @media (max-width: 600px) {
+    display: none;
+  }
 
   h3 {
     margin-bottom: 10px;
@@ -262,8 +333,11 @@ const KeptSongsList = styled.div<{isScrollable?: boolean}>`
 const CardAndButtonContainer = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: center; /* Center the card and button horizontally */
-  margin-top: 30px; 
+  align-items: center;
+  margin-top: 30px;
+  @media (max-width: 600px) {
+    margin-top: 60px;
+  }
 `;
 
 const TopBar = styled.div`
@@ -284,6 +358,14 @@ const TopBarButton = styled(Button)`
   font-size: 1.1rem;
   padding: 12px 28px;
   pointer-events: auto;
+  @media (max-width: 600px) {
+    font-size: 1rem;
+    padding: 8px 18px;
+    width: auto;
+    min-width: 0;
+    margin: 0 auto;
+    display: block;
+  }
 `;
 
 const Logo = styled.h1`
@@ -301,6 +383,12 @@ const Logo = styled.h1`
   left: 0;
   z-index: 1500;
   pointer-events: none;
+  @media (max-width: 600px) {
+    font-size: 2rem;
+    top: 0;
+    margin-bottom: 12px;
+    position: static;
+  }
 `;
 
 const PlaylistHeaderButton = styled.button`
@@ -371,27 +459,40 @@ const HomeContent = styled.div`
   justify-content: center;
   min-height: 80vh;
   width: 100%;
-  margin-top: -150px;
+  margin-top: 0;
+  padding: 48px 24px 0 24px;
+  @media (max-width: 600px) {
+    min-height: 100vh;
+    margin-top: 0;
+    justify-content: flex-start;
+    padding: 48px 10px 0 10px;
+  }
 `;
 
 const AppDescription = styled.p`
   color: #fff;
-  font-size: 1.5rem;
+  font-size: 2rem;
   text-align: center;
   width: 100%;
-  opacity: 0.9;
+  opacity: 0.92;
   font-weight: 300;
   letter-spacing: 0.5px;
-  margin: 40px 0 0 0;
+  margin: 48px 0 0 0;
   padding: 0 20px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  word-break: break-word;
+  @media (max-width: 600px) {
+    font-size: 1.25rem;
+    padding: 0 8px;
+    margin: 28px 0 0 0;
+  }
 `;
 
 const ShimmeringLogo = styled.h1`
   color: #1DB954;
-  font-size: 6rem;
+  font-size: 6.5rem;
   margin-bottom: 0;
   font-weight: 900;
   letter-spacing: 2px;
@@ -412,24 +513,18 @@ const ShimmeringLogo = styled.h1`
   text-align: center;
   width: 100%;
   pointer-events: none;
-
-  @keyframes shine {
-    0% {
-      background-position: 0% center;
-    }
-    50% {
-      background-position: 100% center;
-    }
-    100% {
-      background-position: 0% center;
-    }
+  margin-top: 0;
+  @media (max-width: 600px) {
+    font-size: 2.2rem;
+    margin-bottom: 0;
+    margin-top: 0;
   }
 `;
 
 const GetStartedButton = styled(Button)`
-  font-size: 2.2rem;
-  padding: 28px 56px;
-  margin-top: 64px;
+  font-size: 2.6rem;
+  padding: 36px 64px;
+  margin-top: 72px;
   background: linear-gradient(45deg, #1DB954, #1ed760);
   box-shadow: 0 4px 15px rgba(29, 185, 84, 0.3);
   transition: all 0.3s ease;
@@ -438,6 +533,12 @@ const GetStartedButton = styled(Button)`
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(29, 185, 84, 0.4);
     background: linear-gradient(45deg, #1ed760, #1DB954);
+  }
+  @media (max-width: 600px) {
+    font-size: 1.5rem;
+    padding: 18px 0;
+    width: 80vw;
+    margin-top: 40px;
   }
 `;
 
@@ -458,6 +559,12 @@ const OptionsButton = styled.button`
   &:hover {
     background: #1DB954;
     color: white;
+  }
+  @media (max-width: 600px) {
+    padding: 8px 16px;
+    font-size: 1rem;
+    top: 8px;
+    right: 8px;
   }
 `;
 
@@ -495,6 +602,26 @@ const PlaylistPickerContainer = styled.div`
   flex-direction: column;
   align-items: center;
   margin-top: 80px;
+  @media (max-width: 600px) {
+    margin-top: 24px;
+    width: 100vw;
+    padding: 0;
+  }
+`;
+
+// Add a divider for the header
+const PlaylistPickerHeader = styled.h2`
+  color: #1DB954;
+  margin-bottom: 24px;
+  font-size: 2.1rem;
+  font-weight: 800;
+  text-align: center;
+  letter-spacing: 0.5px;
+  @media (max-width: 600px) {
+    font-size: 1.4rem;
+    margin-bottom: 12px;
+    margin-top: 0;
+  }
 `;
 
 const PlaylistsScrollBox = styled.div`
@@ -506,6 +633,13 @@ const PlaylistsScrollBox = styled.div`
   border: 2px solid #1DB954;
   padding: 24px 0;
   box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+  @media (max-width: 600px) {
+    width: 95vw;
+    min-width: 0;
+    max-width: 95vw;
+    padding: 8px 0;
+    border-radius: 12px;
+  }
 `;
 
 const PlaylistItem = styled.div`
@@ -519,6 +653,10 @@ const PlaylistItem = styled.div`
   &:hover {
     background: #232323;
   }
+  @media (max-width: 600px) {
+    padding: 10px 10px;
+    gap: 10px;
+  }
 `;
 
 const PlaylistCoverSmall = styled.img`
@@ -527,18 +665,30 @@ const PlaylistCoverSmall = styled.img`
   border-radius: 10px;
   object-fit: cover;
   background: #232323;
+  @media (max-width: 600px) {
+    width: 38px;
+    height: 38px;
+    border-radius: 7px;
+  }
 `;
 
 const PlaylistName = styled.div`
   color: #fff;
   font-size: 1.2rem;
   font-weight: 600;
+  @media (max-width: 600px) {
+    font-size: 1rem;
+    font-weight: 700;
+  }
 `;
 
 const PlaylistTracks = styled.div`
   color: #1DB954;
   font-size: 1rem;
   font-weight: 400;
+  @media (max-width: 600px) {
+    font-size: 0.9rem;
+  }
 `;
 
 // Add SpotifyPlaylist type for the beta picker
@@ -679,7 +829,7 @@ function PlaylistPickerBeta({ token, onSelect, onBack }: PlaylistPickerBetaProps
 
   return (
     <PlaylistPickerContainer>
-      <h2 style={{ color: '#1DB954', marginBottom: 24 }}>Choose a Playlist (Beta)</h2>
+      <PlaylistPickerHeader>Choose a Playlist (Beta)</PlaylistPickerHeader>
       {loading && <div style={{ color: '#fff' }}>Loading...</div>}
       {error && <div style={{ color: '#ff4b4b' }}>{error}</div>}
       <PlaylistsScrollBox>
@@ -735,16 +885,187 @@ const BetaNotice = styled.div`
   background: linear-gradient(90deg, #1DB954 0%, #1ed760 100%);
   color: #191414;
   font-weight: bold;
-  font-size: 1.1rem;
-  padding: 10px 32px;
+  font-size: 1rem;
+  padding: 4px 18px;
   border-radius: 16px;
-  margin: 32px 0 0 0;
+  margin: 18px 0 0 0;
   letter-spacing: 1px;
   box-shadow: 0 2px 8px rgba(29,185,84,0.10);
   display: inline-block;
 `;
 
+// Add a flex container for the floating panel buttons on mobile
+const FloatingPanelButtonRow = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 24px;
+  z-index: 3001;
+  @media (min-width: 601px) {
+    display: none;
+  }
+`;
+
+// Slide-in panel for mobile
+const SlidePanel = styled.div`
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: auto;
+  margin: 0 auto;
+  width: 100vw;
+  max-width: 540px;
+  background: rgba(25,25,25,0.98);
+  z-index: 4001;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-top-left-radius: 22px;
+  border-top-right-radius: 22px;
+  padding: 0;
+  height: 60vh;
+  min-height: 120px;
+  overflow: hidden;
+  transform: translateY(100%);
+  transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+  &.open {
+    transform: translateY(0);
+  }
+  @media (min-width: 601px) {
+    display: none;
+  }
+`;
+
+const SlidePanelHeader = styled.div`
+  width: 100%;
+  padding: 20px 0 12px 0;
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #1DB954;
+  background: transparent;
+  position: relative;
+`;
+
+const SlidePanelClose = styled.button`
+  background: none;
+  color: #1DB954;
+  border: none;
+  font-size: 2.2rem;
+  position: absolute;
+  top: 12px;
+  right: 18px;
+  z-index: 2;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 8px;
+  @media (min-width: 601px) {
+    display: none;
+  }
+`;
+
+const CompactSongList = styled.ul`
+  width: 100%;
+  max-width: 500px;
+  padding: 0 0 12px 0;
+  margin: 0;
+  list-style: none;
+  overflow-y: auto;
+  max-height: calc(60vh - 60px);
+  @media (max-width: 600px) {
+    max-width: 500px;
+    padding: 0 8px 12px 8px;
+  }
+  li {
+    display: flex;
+    align-items: center;
+    background: #232323;
+    padding: 10px 8px;
+    margin-bottom: 0;
+    border-radius: 7px;
+    font-size: 15px;
+    border-bottom: 1px solid #333;
+    &:last-child {
+      border-bottom: none;
+    }
+    img {
+      width: 38px;
+      height: 38px;
+      object-fit: cover;
+      border-radius: 5px;
+      margin-right: 12px;
+    }
+    div {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      white-space: normal;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .song-title {
+      font-weight: 700;
+      color: #fff;
+      font-size: 1.05em;
+      margin-bottom: 2px;
+      line-height: 1.2;
+    }
+    .song-artists {
+      color: #b3b3b3;
+      font-size: 0.98em;
+      font-weight: 400;
+      line-height: 1.1;
+    }
+  }
+`;
+
+// Add floating panel button style for mobile (move this above App function and before FloatingPanelButtonRow)
+const FloatingPanelButton = styled.button`
+  background: #1DB954;
+  color: #fff;
+  border: none;
+  border-radius: 24px;
+  padding: 12px 22px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(29,185,84,0.18);
+  cursor: pointer;
+  transition: background 0.2s;
+  flex: 1 1 0;
+  max-width: 48%;
+  min-width: 0;
+  text-align: center;
+  opacity: 1;
+  @media (max-width: 600px) {
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+  @media (min-width: 601px) {
+    display: none;
+  }
+`;
+
+// Add a mobile detection hook
+function useIsMobile() {
+  const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 600);
+  React.useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth <= 600);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+  return isMobile;
+}
+
 function App() {
+  const [showRemovedPanel, setShowRemovedPanel] = useState(false);
+  const [showKeptPanel, setShowKeptPanel] = useState(false);
   const [token, setToken] = useState<string | null>(null);
   const [playlistId, setPlaylistId] = useState<string>('');
   const [playlistUrl, setPlaylistUrl] = useState<string>('');
@@ -760,7 +1081,7 @@ function App() {
   const [currentSongId, setCurrentSongId] = useState<string | null>(null);
   const [showEmbed, setShowEmbed] = useState(() => {
     const stored = localStorage.getItem('showEmbed');
-    return stored === null ? true : stored === 'true';
+    return stored === null ? false : stored === 'true';
   });
   const [playlistName, setPlaylistName] = useState<string>('');
   const [playlistImage, setPlaylistImage] = useState<string>(''); // New state for playlist image
@@ -769,6 +1090,8 @@ function App() {
   const [showPlaylistPickerBeta, setShowPlaylistPickerBeta] = useState(false);
   const [loadingSongs, setLoadingSongs] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
+
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -1189,7 +1512,7 @@ function App() {
       <AppContainer>
         <HomeContent>
           <ShimmeringLogo>TrackSwipe</ShimmeringLogo>
-          <BetaNotice>Beta Version – Features and UI may change</BetaNotice>
+          <BetaNotice>Beta</BetaNotice>
           <AppDescription>
             Swipe through your Spotify playlists to curate the perfect collection
           </AppDescription>
@@ -1313,11 +1636,71 @@ function App() {
               </PlaylistHeaderButton>
             )}
             <MainContent>
+              {/* Desktop lists */}
               {removedSongsStack.length > 0 && (
                 <RemovedSongsList isScrollable={removedSongsStack.length > 10}>
                   <h3>Removed Tracks:</h3>
                   <SongList songs={removedSongsStack} />
                 </RemovedSongsList>
+              )}
+              {keptSongsList.length > 0 && (
+                <KeptSongsList isScrollable={keptSongsList.length > 10}>
+                  <h3>Kept Tracks:</h3>
+                  <SongList songs={keptSongsList} />
+                </KeptSongsList>
+              )}
+              {/* Mobile floating buttons */}
+              {isMobile && (
+                <>
+                  <FloatingPanelButtonRow>
+                    <FloatingPanelButton
+                      onClick={() => setShowRemovedPanel(true)}
+                      disabled={removedSongsStack.length === 0}
+                    >
+                      Show Removed
+                    </FloatingPanelButton>
+                    <FloatingPanelButton
+                      onClick={() => setShowKeptPanel(true)}
+                      disabled={keptSongsList.length === 0}
+                    >
+                      Show Kept
+                    </FloatingPanelButton>
+                  </FloatingPanelButtonRow>
+                  {showRemovedPanel && <div style={{position:'fixed',left:0,top:0,width:'100vw',height:'100vh',zIndex:3999,background:'rgba(0,0,0,0.01)'}} onClick={()=>setShowRemovedPanel(false)} />}
+                  <SlidePanel className={showRemovedPanel ? 'open' : ''}>
+                    <SlidePanelClose onClick={() => setShowRemovedPanel(false)}>
+                      {'\\'}
+                    </SlidePanelClose>
+                    <SlidePanelHeader>Removed Tracks</SlidePanelHeader>
+                    {removedSongsStack.length > 0 ? (
+                      <CompactSongList>
+                        {removedSongsStack.map(song => (
+                          <li key={song.id}>
+                            {song.album?.images?.[0]?.url && <img src={song.album.images[0].url} alt={song.album.name || 'Album art'} />}
+                            <div><span className="song-title">{song.name}</span><span className="song-artists">{song.artists.map(a => a.name).join(', ')}</span></div>
+                          </li>
+                        ))}
+                      </CompactSongList>
+                    ) : <div style={{ color: '#fff', marginTop: 24 }}>No removed songs.</div>}
+                  </SlidePanel>
+                  {showKeptPanel && <div style={{position:'fixed',left:0,top:0,width:'100vw',height:'100vh',zIndex:3999,background:'rgba(0,0,0,0.01)'}} onClick={()=>setShowKeptPanel(false)} />}
+                  <SlidePanel className={showKeptPanel ? 'open' : ''}>
+                    <SlidePanelClose onClick={() => setShowKeptPanel(false)}>
+                      {'\\'}
+                    </SlidePanelClose>
+                    <SlidePanelHeader>Kept Tracks</SlidePanelHeader>
+                    {keptSongsList.length > 0 ? (
+                      <CompactSongList>
+                        {keptSongsList.map(song => (
+                          <li key={song.id}>
+                            {song.album?.images?.[0]?.url && <img src={song.album.images[0].url} alt={song.album.name || 'Album art'} />}
+                            <div><span className="song-title">{song.name}</span><span className="song-artists">{song.artists.map(a => a.name).join(', ')}</span></div>
+                          </li>
+                        ))}
+                      </CompactSongList>
+                    ) : <div style={{ color: '#fff', marginTop: 24 }}>No kept songs.</div>}
+                  </SlidePanel>
+                </>
               )}
               <CardAndButtonContainer>
                 <CardContainer>
@@ -1334,39 +1717,27 @@ function App() {
                     </div>
                   )}
                 </CardContainer>
+                {showEmbed && currentSongId && (
+                  <div style={{ marginTop: 32, marginBottom: 16 }}>
+                    <iframe
+                      src={`https://open.spotify.com/embed/track/${currentSongId}`}
+                      width="340"
+                      height="80"
+                      frameBorder="0"
+                      allow="encrypted-media"
+                      title="Spotify Player"
+                      style={{ borderRadius: 12, width: '98vw', maxWidth: 400, margin: '12px auto 0 auto', display: 'block' }}
+                    />
+                  </div>
+                )}
                 {removedSongsStack.length > 0 && (
-                  <ApplyButton onClick={() => applyRemovals()} disabled={removedSongsStack.length === 0}>
+                  <ApplyButton onClick={() => applyRemovals()} disabled={removedSongsStack.length === 0} style={{ marginTop: 24 }}>
                     Apply {removedSongsStack.length} Removal{removedSongsStack.length > 1 ? 's' : ''}
                   </ApplyButton>
                 )}
               </CardAndButtonContainer>
-              {keptSongsList.length > 0 && (
-                <KeptSongsList isScrollable={keptSongsList.length > 10}>
-                  <h3>Kept Tracks:</h3>
-                  <SongList songs={keptSongsList} />
-                </KeptSongsList>
-              )}
             </MainContent>
           </>
-        )}
-        <audio
-          ref={audioRef}
-          src={playingPreviewId ? songs.find(song => song.id === playingPreviewId)?.preview_url : undefined}
-          onEnded={() => setPlayingPreviewId(null)}
-          style={{ display: 'none' }}
-        />
-        {showEmbed && currentSongId && (
-          <div style={{ marginTop: 24 }}>
-            <iframe
-              src={`https://open.spotify.com/embed/track/${currentSongId}`}
-              width="340"
-              height="80"
-              frameBorder="0"
-              allow="encrypted-media"
-              title="Spotify Player"
-              style={{ borderRadius: 12 }}
-            />
-          </div>
         )}
       </AppContainer>
       <TransparentLogoutButton onClick={logout}>Logout</TransparentLogoutButton>

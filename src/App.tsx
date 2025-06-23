@@ -27,14 +27,14 @@ const AppContainer = styled.div`
   align-items: center;
   min-height: 100vh;
   background: #191414; // Spotify dark black
-  padding: 56px 24px 0 24px;
+  padding: 32px 24px 0 24px;
   box-sizing: border-box;
   max-width: 100vw;
   max-height: 100vh;
   overflow-x: hidden;
   font-size: 1.25rem;
   @media (max-width: 600px) {
-    padding: 48px 12px 0 12px;
+    padding: 24px 12px 0 12px;
     font-size: 1rem;
     height: 100vh;
     overflow-y: hidden;
@@ -48,7 +48,7 @@ const AppContainer = styled.div`
 
 const CardContainer = styled.div`
   width: 320px;
-  height: 420px;
+  height: 480px;
   position: relative;
   margin: 32px auto 0 auto;
   transform: translateZ(0);
@@ -73,7 +73,7 @@ const MainContent = styled.div`
 const SongCard = styled.div<{ transform?: string }>`
   position: absolute;
   width: 320px;
-  height: 420px;
+  height: 480px;
   background: #232323; // Lighter than #191414 for contrast
   border-radius: 32px;
   padding: 32px;
@@ -97,6 +97,7 @@ const SongCard = styled.div<{ transform?: string }>`
     box-shadow: 0 4px 18px rgba(29,185,84,0.18);
     border: 2.5px solid transparent;
     margin: 0 auto 12px auto;
+    height: 380px;
   }
 `;
 
@@ -334,16 +335,16 @@ const CardAndButtonContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 30px;
+  margin-top: 18px;
   @media (max-width: 600px) {
-    margin-top: 60px;
+    margin-top: 6px;
   }
 `;
 
 const TopBar = styled.div`
   width: 100vw;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   position: fixed;
   top: 0;
@@ -351,6 +352,10 @@ const TopBar = styled.div`
   padding: 24px 36px 0 36px;
   z-index: 2000;
   pointer-events: none;
+  @media (max-width: 600px) {
+    padding: 12px 12px 0 12px;
+    justify-content: flex-end;
+  }
 `;
 
 const TopBarButton = styled(Button)`
@@ -358,13 +363,19 @@ const TopBarButton = styled(Button)`
   font-size: 1.1rem;
   padding: 12px 28px;
   pointer-events: auto;
+  opacity: 1;
   @media (max-width: 600px) {
     font-size: 1rem;
     padding: 8px 18px;
     width: auto;
     min-width: 0;
-    margin: 0 auto;
+    margin: 0 0 0 8px;
     display: block;
+    opacity: 1;
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
   }
 `;
 
@@ -903,7 +914,7 @@ const FloatingPanelButtonRow = styled.div`
   position: fixed;
   left: 0;
   right: 0;
-  bottom: 24px;
+  bottom: 90px;
   z-index: 3001;
   @media (min-width: 601px) {
     display: none;

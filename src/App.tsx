@@ -923,7 +923,7 @@ const FloatingPanelButtonRow = styled.div`
   position: fixed;
   left: 0;
   right: 0;
-  bottom: 160px;
+  bottom: 120px;
   z-index: 3001;
   padding: 0 8px;
   @media (min-width: 601px) {
@@ -1756,7 +1756,7 @@ function App() {
                   )}
                 </CardContainer>
                 {showEmbed && currentSongId && (
-                  <div style={{ margin: '18px 0 8px 0', width: '100%', display: 'flex', justifyContent: 'center' }}>
+                  <div style={{ margin: '8px 0 8px 0', width: '100%', display: 'flex', justifyContent: 'center' }}>
                     <iframe
                       src={`https://open.spotify.com/embed/track/${currentSongId}`}
                       width="340"

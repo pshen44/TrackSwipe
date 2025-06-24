@@ -12,7 +12,7 @@ declare global {
 }
 
 const CLIENT_ID = '06b9dadfd2144324a7ed4d37dbe1245f'; // Replace with your Spotify Client ID
-const REDIRECT_URI = 'https://trackswipe.vercel.app'; // Make sure this matches your Spotify app settings
+const REDIRECT_URI = 'http://127.0.0.1:3000'; // Make sure this matches your Spotify app settings
 const AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';
 const TOKEN_ENDPOINT = 'https://accounts.spotify.com/api/token';
 const SCOPE = 'playlist-read-private playlist-modify-private playlist-modify-public playlist-read-collaborative';
@@ -47,12 +47,12 @@ const AppContainer = styled.div`
 `;
 
 const CardContainer = styled.div`
-  width: 320px;
-  height: 480px;
+  width: 440px;
+  height: 620px;
   position: relative;
   margin: 32px auto 0 auto;
   transform: translateZ(0);
-  max-width: 92vw;
+  max-width: 98vw;
 `;
 
 const MainContent = styled.div`
@@ -72,22 +72,23 @@ const MainContent = styled.div`
 
 const SongCard = styled.div<{ transform?: string }>`
   position: absolute;
-  width: 320px;
-  height: 480px;
-  background: #232323; // Lighter than #191414 for contrast
+  width: 440px;
+  height: 620px;
+  background: #232323;
   border-radius: 32px;
   padding: 32px;
   box-shadow: 0px 14px 32px rgba(43, 255, 89, 0.22);
+  border: 2.5px solid transparent;
+  transition: box-shadow 0.2s, border 0.2s;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   transition: transform 0.3s ease-out;
   transform: ${props => props.transform || 'none'};
   user-select: none;
-  border: 2.5px solid transparent;
-  color: #fff; // Make all text inside the card white
+  color: #fff;
   margin: 0 auto;
-  max-width: 92vw;
+  max-width: 98vw;
   &:hover {
     border-color: #1db954;
   }
@@ -97,7 +98,8 @@ const SongCard = styled.div<{ transform?: string }>`
     box-shadow: 0 4px 18px rgba(29,185,84,0.18);
     border: 2.5px solid transparent;
     margin: 0 auto 12px auto;
-    height: 380px;
+    width: 98vw;
+    height: 500px;
   }
 `;
 
@@ -107,9 +109,11 @@ const SongInfo = styled.div`
 
 const Title = styled.h2`
   margin: 0;
-  color: #fff; // White title
+  color: #fff;
+  font-size: 2rem;
+  font-weight: bold;
   @media (max-width: 600px) {
-    font-size: 1.1rem;
+    font-size: 1.3rem;
     text-align: center;
     padding: 8px 0 0 0;
     word-break: break-word;
@@ -119,26 +123,31 @@ const Title = styled.h2`
 `;
 
 const Artist = styled.p`
-  color: #ccc; // Light gray for artist
+  color: #ccc;
   margin: 10px 0;
+  font-size: 1.2rem;
+  @media (max-width: 600px) {
+    font-size: 1rem;
+  }
 `;
 
 const AlbumArt = styled.img`
-  width: 100%;
+  width: 70%;
+  max-width: 320px;
   aspect-ratio: 1/1;
   height: auto;
   object-fit: cover;
-  border-radius: 14px;
-  margin: 18px 0;
+  border-radius: 18px;
+  margin: 24px auto 18px auto;
+  display: block;
   user-select: none;
   pointer-events: none;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.10);
   @media (max-width: 600px) {
-    width: 100%;
-    aspect-ratio: 1/1;
-    height: auto;
+    width: 80vw;
+    max-width: 320px;
+    margin: 12px auto 8px auto;
     border-radius: 18px;
-    margin: 0;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.10);
   }
 `;
 
@@ -344,7 +353,7 @@ const CardAndButtonContainer = styled.div`
 const TopBar = styled.div`
   width: 100vw;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
   position: fixed;
   top: 0;
@@ -354,7 +363,7 @@ const TopBar = styled.div`
   pointer-events: none;
   @media (max-width: 600px) {
     padding: 12px 12px 0 12px;
-    justify-content: flex-end;
+    justify-content: space-between;
   }
 `;
 
@@ -910,12 +919,13 @@ const FloatingPanelButtonRow = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 16px;
+  gap: 10px;
   position: fixed;
   left: 0;
   right: 0;
-  bottom: 90px;
+  bottom: 160px;
   z-index: 3001;
+  padding: 0 8px;
   @media (min-width: 601px) {
     display: none;
   }
@@ -1041,14 +1051,13 @@ const FloatingPanelButton = styled.button`
   color: #fff;
   border: none;
   border-radius: 24px;
-  padding: 12px 22px;
-  font-size: 1.1rem;
+  padding: 12px 0;
+  font-size: 1.05rem;
   font-weight: 700;
   box-shadow: 0 2px 8px rgba(29,185,84,0.18);
   cursor: pointer;
   transition: background 0.2s;
   flex: 1 1 0;
-  max-width: 48%;
   min-width: 0;
   text-align: center;
   opacity: 1;
@@ -1057,9 +1066,18 @@ const FloatingPanelButton = styled.button`
       opacity: 0.5;
       cursor: not-allowed;
     }
+    font-size: 0.98rem;
+    padding: 10px 0;
   }
   @media (min-width: 601px) {
     display: none;
+  }
+`;
+
+const FloatingApplyButton = styled(FloatingPanelButton)`
+  background: #ff4b4b;
+  &:hover {
+    background: #e04343;
   }
 `;
 
@@ -1573,9 +1591,8 @@ function App() {
 
   return (
     <StyleSheetManager>
-      {/* TopBar with Undo (left) and Logout (right) */}
       <TopBar>
-        <div>
+        <div style={{ pointerEvents: 'auto' }}>
           {swipeActionHistory.length > 0 && (
             <TopBarButton
               onClick={() => handleUndo()}
@@ -1584,6 +1601,9 @@ function App() {
               Undo ({swipeActionHistory.length})
             </TopBarButton>
           )}
+        </div>
+        <div style={{ pointerEvents: 'auto' }}>
+          <TransparentLogoutButton onClick={logout}>Logout</TransparentLogoutButton>
         </div>
       </TopBar>
       {songs.length > 0 && (
@@ -1668,19 +1688,26 @@ function App() {
                       onClick={() => setShowRemovedPanel(true)}
                       disabled={removedSongsStack.length === 0}
                     >
-                      Show Removed
+                      Removed
                     </FloatingPanelButton>
+                    <FloatingApplyButton
+                      onClick={() => applyRemovals()}
+                      disabled={removedSongsStack.length === 0}
+                    >
+                      Apply {removedSongsStack.length} Removal{removedSongsStack.length > 1 ? 's' : ''}
+                    </FloatingApplyButton>
                     <FloatingPanelButton
                       onClick={() => setShowKeptPanel(true)}
                       disabled={keptSongsList.length === 0}
                     >
-                      Show Kept
+                      Kept
                     </FloatingPanelButton>
                   </FloatingPanelButtonRow>
+                  {/* Slide-in panels for mobile lists */}
                   {showRemovedPanel && <div style={{position:'fixed',left:0,top:0,width:'100vw',height:'100vh',zIndex:3999,background:'rgba(0,0,0,0.01)'}} onClick={()=>setShowRemovedPanel(false)} />}
                   <SlidePanel className={showRemovedPanel ? 'open' : ''}>
                     <SlidePanelClose onClick={() => setShowRemovedPanel(false)}>
-                      {'\\'}
+                      &times;
                     </SlidePanelClose>
                     <SlidePanelHeader>Removed Tracks</SlidePanelHeader>
                     {removedSongsStack.length > 0 ? (
@@ -1697,7 +1724,7 @@ function App() {
                   {showKeptPanel && <div style={{position:'fixed',left:0,top:0,width:'100vw',height:'100vh',zIndex:3999,background:'rgba(0,0,0,0.01)'}} onClick={()=>setShowKeptPanel(false)} />}
                   <SlidePanel className={showKeptPanel ? 'open' : ''}>
                     <SlidePanelClose onClick={() => setShowKeptPanel(false)}>
-                      {'\\'}
+                      &times;
                     </SlidePanelClose>
                     <SlidePanelHeader>Kept Tracks</SlidePanelHeader>
                     {keptSongsList.length > 0 ? (
@@ -1729,7 +1756,7 @@ function App() {
                   )}
                 </CardContainer>
                 {showEmbed && currentSongId && (
-                  <div style={{ marginTop: 32, marginBottom: 16 }}>
+                  <div style={{ margin: '18px 0 8px 0', width: '100%', display: 'flex', justifyContent: 'center' }}>
                     <iframe
                       src={`https://open.spotify.com/embed/track/${currentSongId}`}
                       width="340"
@@ -1737,14 +1764,9 @@ function App() {
                       frameBorder="0"
                       allow="encrypted-media"
                       title="Spotify Player"
-                      style={{ borderRadius: 12, width: '98vw', maxWidth: 400, margin: '12px auto 0 auto', display: 'block' }}
+                      style={{ borderRadius: 12, width: '98vw', maxWidth: 400, margin: '0 auto', display: 'block', boxShadow: '0 2px 12px rgba(0,0,0,0.10)' }}
                     />
                   </div>
-                )}
-                {removedSongsStack.length > 0 && (
-                  <ApplyButton onClick={() => applyRemovals()} disabled={removedSongsStack.length === 0} style={{ marginTop: 24 }}>
-                    Apply {removedSongsStack.length} Removal{removedSongsStack.length > 1 ? 's' : ''}
-                  </ApplyButton>
                 )}
               </CardAndButtonContainer>
             </MainContent>

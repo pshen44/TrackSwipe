@@ -34,7 +34,7 @@ const AppContainer = styled.div`
   overflow-x: hidden;
   font-size: 1.25rem;
   @media (max-width: 600px) {
-    padding: 24px 12px 120px 12px; /* extra bottom padding for floating buttons and embed */
+    padding: 24px 12px 0 12px;
     font-size: 1rem;
     height: 100vh;
     overflow-y: hidden;
@@ -923,12 +923,25 @@ const FloatingPanelButtonRow = styled.div`
   position: fixed;
   left: 0;
   right: 0;
-  bottom: 120px;
+  bottom: 90px;
   z-index: 3001;
   padding: 0 8px;
   @media (min-width: 601px) {
     display: none;
   }
+`;
+
+const FixedMobileEmbed = styled.div`
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3002;
+  display: flex;
+  justify-content: center;
+  width: 100vw;
+  background: #191414;
+  padding-bottom: env(safe-area-inset-bottom, 0);
 `;
 
 // Slide-in panel for mobile
@@ -1091,23 +1104,6 @@ function useIsMobile() {
   }, []);
   return isMobile;
 }
-
-// Add this styled component near other styled components
-const MobileEmbedContainer = styled.div`
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 3002;
-  background: #191414;
-  display: flex;
-  justify-content: center;
-  width: 100vw;
-  padding-bottom: calc(24px + env(safe-area-inset-bottom, 0));
-  @media (min-width: 601px) {
-    display: none;
-  }
-`;
 
 function App() {
   const [showRemovedPanel, setShowRemovedPanel] = useState(false);
@@ -1720,6 +1716,26 @@ function App() {
                       Kept
                     </FloatingPanelButton>
                   </FloatingPanelButtonRow>
+                  {showEmbed && currentSongId && (
+                    <FixedMobileEmbed>
+                      <iframe
+                        src={`https://open.spotify.com/embed/track/${currentSongId}`}
+                        width="340"
+                        height="80"
+                        frameBorder="0"
+                        allow="encrypted-media"
+                        title="Spotify Player"
+                        style={{
+                          borderRadius: 12,
+                          width: '98vw',
+                          maxWidth: 400,
+                          margin: '0 auto',
+                          display: 'block',
+                          boxShadow: '0 2px 12px rgba(0,0,0,0.10)'
+                        }}
+                      />
+                    </FixedMobileEmbed>
+                  )}
                   {/* Slide-in panels for mobile lists */}
                   {showRemovedPanel && <div style={{position:'fixed',left:0,top:0,width:'100vw',height:'100vh',zIndex:3999,background:'rgba(0,0,0,0.01)'}} onClick={()=>setShowRemovedPanel(false)} />}
                   <SlidePanel className={showRemovedPanel ? 'open' : ''}>
@@ -1782,35 +1798,20 @@ function App() {
                     Apply {removedSongsStack.length} Removal{removedSongsStack.length > 1 ? 's' : ''}
                   </ApplyButton>
                 )}
+                {!isMobile && showEmbed && currentSongId && (
+                  <div style={{ margin: '8px 0 8px 0', width: '100%', display: 'flex', justifyContent: 'center' }}>
+                    <iframe
+                      src={`https://open.spotify.com/embed/track/${currentSongId}`}
+                      width="340"
+                      height="80"
+                      frameBorder="0"
+                      allow="encrypted-media"
+                      title="Spotify Player"
+                      style={{ borderRadius: 12, width: '98vw', maxWidth: 400, margin: '0 auto', display: 'block', boxShadow: '0 2px 12px rgba(0,0,0,0.10)' }}
+                    />
+                  </div>
+                )}
               </CardAndButtonContainer>
-              {/* Desktop: embed below card/buttons in normal flow */}
-              {!isMobile && showEmbed && currentSongId && (
-                <div style={{ margin: '30px 0 8px 0', width: '100%', display: 'flex', justifyContent: 'center' }}>
-                  <iframe
-                    src={`https://open.spotify.com/embed/track/${currentSongId}`}
-                    width="340"
-                    height="80"
-                    frameBorder="0"
-                    allow="encrypted-media"
-                    title="Spotify Player"
-                    style={{ borderRadius: 12, width: '98vw', maxWidth: 400, margin: '0 auto', display: 'block', boxShadow: '0 2px 12px rgba(0,0,0,0.10)' }}
-                  />
-                </div>
-              )}
-              {/* Mobile: embed fixed to bottom, always below floating buttons */}
-              {isMobile && showEmbed && currentSongId && (
-                <MobileEmbedContainer>
-                  <iframe
-                    src={`https://open.spotify.com/embed/track/${currentSongId}`}
-                    width="340"
-                    height="80"
-                    frameBorder="0"
-                    allow="encrypted-media"
-                    title="Spotify Player"
-                    style={{ borderRadius: 12, width: '98vw', maxWidth: 400, margin: '0 auto', display: 'block', boxShadow: '0 2px 12px rgba(0,0,0,0.10)' }}
-                  />
-                </MobileEmbedContainer>
-              )}
             </MainContent>
           </>
         )}

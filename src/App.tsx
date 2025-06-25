@@ -12,7 +12,7 @@ declare global {
 }
 
 const CLIENT_ID = '06b9dadfd2144324a7ed4d37dbe1245f'; // Replace with your Spotify Client ID
-const REDIRECT_URI = 'https://trackswipe.vercel.app'; // Make sure this matches your Spotify app settings
+const REDIRECT_URI = 'http://127.0.0.1:3000/'; // Make sure this matches your Spotify app settings
 const AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';
 const TOKEN_ENDPOINT = 'https://accounts.spotify.com/api/token';
 const SCOPE = 'playlist-read-private playlist-modify-private playlist-modify-public playlist-read-collaborative';
@@ -34,7 +34,7 @@ const AppContainer = styled.div`
   overflow-x: hidden;
   font-size: 1.25rem;
   @media (max-width: 600px) {
-    padding: 24px 12px 0 12px;
+    padding: 24px 12px 120px 12px; /* extra bottom padding for floating buttons and embed */
     font-size: 1rem;
     height: 100vh;
     overflow-y: hidden;
@@ -1092,6 +1092,23 @@ function useIsMobile() {
   return isMobile;
 }
 
+// Add this styled component near other styled components
+const MobileEmbedContainer = styled.div`
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3002;
+  background: #191414;
+  display: flex;
+  justify-content: center;
+  width: 100vw;
+  padding-bottom: calc(24px + env(safe-area-inset-bottom, 0));
+  @media (min-width: 601px) {
+    display: none;
+  }
+`;
+
 function App() {
   const [showRemovedPanel, setShowRemovedPanel] = useState(false);
   const [showKeptPanel, setShowKeptPanel] = useState(false);
@@ -1755,20 +1772,45 @@ function App() {
                     </div>
                   )}
                 </CardContainer>
-                {showEmbed && currentSongId && (
-                  <div style={{ margin: '8px 0 8px 0', width: '100%', display: 'flex', justifyContent: 'center' }}>
-                    <iframe
-                      src={`https://open.spotify.com/embed/track/${currentSongId}`}
-                      width="340"
-                      height="80"
-                      frameBorder="0"
-                      allow="encrypted-media"
-                      title="Spotify Player"
-                      style={{ borderRadius: 12, width: '98vw', maxWidth: 400, margin: '0 auto', display: 'block', boxShadow: '0 2px 12px rgba(0,0,0,0.10)' }}
-                    />
-                  </div>
+                {/* Desktop-only Apply Removals button */}
+                {!isMobile && removedSongsStack.length > 0 && (
+                  <ApplyButton
+                    onClick={applyRemovals}
+                    disabled={removedSongsStack.length === 0}
+                    style={{ marginTop: 32, fontSize: '1.3rem', minWidth: 260, boxShadow: '0 2px 16px rgba(255,75,75,0.18)' }}
+                  >
+                    Apply {removedSongsStack.length} Removal{removedSongsStack.length > 1 ? 's' : ''}
+                  </ApplyButton>
                 )}
               </CardAndButtonContainer>
+              {/* Desktop: embed below card/buttons in normal flow */}
+              {!isMobile && showEmbed && currentSongId && (
+                <div style={{ margin: '30px 0 8px 0', width: '100%', display: 'flex', justifyContent: 'center' }}>
+                  <iframe
+                    src={`https://open.spotify.com/embed/track/${currentSongId}`}
+                    width="340"
+                    height="80"
+                    frameBorder="0"
+                    allow="encrypted-media"
+                    title="Spotify Player"
+                    style={{ borderRadius: 12, width: '98vw', maxWidth: 400, margin: '0 auto', display: 'block', boxShadow: '0 2px 12px rgba(0,0,0,0.10)' }}
+                  />
+                </div>
+              )}
+              {/* Mobile: embed fixed to bottom, always below floating buttons */}
+              {isMobile && showEmbed && currentSongId && (
+                <MobileEmbedContainer>
+                  <iframe
+                    src={`https://open.spotify.com/embed/track/${currentSongId}`}
+                    width="340"
+                    height="80"
+                    frameBorder="0"
+                    allow="encrypted-media"
+                    title="Spotify Player"
+                    style={{ borderRadius: 12, width: '98vw', maxWidth: 400, margin: '0 auto', display: 'block', boxShadow: '0 2px 12px rgba(0,0,0,0.10)' }}
+                  />
+                </MobileEmbedContainer>
+              )}
             </MainContent>
           </>
         )}
